@@ -1,0 +1,15 @@
+input NewProfessor {
+	id: String!
+	name: String!
+	last_name: String!
+	birth_date: String!
+}
+
+type Professor {
+	id: String!
+	name: String!
+	last_name: String!
+	birth_date: String!
+	created_at: String!
+	last_modified_at: String!
+}

@@ -1,0 +1,4 @@
+type Query {
+	professors: [Professor!]!
+	professor(id: ID!): Professor!
+}

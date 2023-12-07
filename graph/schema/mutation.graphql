@@ -1,0 +1,4 @@
+type Mutation {
+	createProfessor(input: NewProfessor!): Professor!
+	removeProfessor(id: String!): Professor!
+}
