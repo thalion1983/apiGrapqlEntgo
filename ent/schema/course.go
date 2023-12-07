@@ -1,6 +1,12 @@
 package schema
 
-import "entgo.io/ent"
+import (
+	"time"
+
+	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
+	"entgo.io/ent/schema/field"
+)
 
 // Course holds the schema definition for the Course entity.
 type Course struct {
@@ -9,10 +15,18 @@ type Course struct {
 
 // Fields of the Course.
 func (Course) Fields() []ent.Field {
-	return nil
+	return []ent.Field{
+		field.Int("year"),
+		field.Int("period"),
+		field.Time("created_at").Default(time.Now).Immutable(),
+		field.Time("last_modified_at").Default(time.Now).UpdateDefault(time.Now),
+	}
 }
 
 // Edges of the Course.
 func (Course) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.From("subject", Subject.Type).Ref("courses"),
+		edge.From("professor", Professor.Type).Ref("courses").Unique(),
+	}
 }
