@@ -2,6 +2,7 @@ package graph
 
 import (
 	"apiGrapqlEntgo/ent"
+	"apiGrapqlEntgo/graph/model"
 	"context"
 )
 

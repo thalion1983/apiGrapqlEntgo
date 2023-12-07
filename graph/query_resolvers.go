@@ -23,6 +23,7 @@ func (r *queryResolver) Professors(ctx context.Context) ([]*model.Professor, err
 	for _, prof := range profList {
 		res = append(res, marshalEntProfessor(prof))
 	}
+	return res, nil
 }
 
 // Professor is the resolver for the professor field.
