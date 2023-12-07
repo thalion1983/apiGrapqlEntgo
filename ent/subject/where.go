@@ -11,53 +11,58 @@ import (
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Subject {
+func ID(id string) predicate.Subject {
 	return predicate.Subject(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Subject {
+func IDEQ(id string) predicate.Subject {
 	return predicate.Subject(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Subject {
+func IDNEQ(id string) predicate.Subject {
 	return predicate.Subject(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Subject {
+func IDIn(ids ...string) predicate.Subject {
 	return predicate.Subject(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Subject {
+func IDNotIn(ids ...string) predicate.Subject {
 	return predicate.Subject(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Subject {
+func IDGT(id string) predicate.Subject {
 	return predicate.Subject(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Subject {
+func IDGTE(id string) predicate.Subject {
 	return predicate.Subject(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Subject {
+func IDLT(id string) predicate.Subject {
 	return predicate.Subject(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Subject {
+func IDLTE(id string) predicate.Subject {
 	return predicate.Subject(sql.FieldLTE(FieldID, id))
 }
 
-// Code applies equality check predicate on the "code" field. It's identical to CodeEQ.
-func Code(v string) predicate.Subject {
-	return predicate.Subject(sql.FieldEQ(FieldCode, v))
+// IDEqualFold applies the EqualFold predicate on the ID field.
+func IDEqualFold(id string) predicate.Subject {
+	return predicate.Subject(sql.FieldEqualFold(FieldID, id))
+}
+
+// IDContainsFold applies the ContainsFold predicate on the ID field.
+func IDContainsFold(id string) predicate.Subject {
+	return predicate.Subject(sql.FieldContainsFold(FieldID, id))
 }
 
 // Name applies equality check predicate on the "name" field. It's identical to NameEQ.
@@ -83,71 +88,6 @@ func CreatedAt(v time.Time) predicate.Subject {
 // LastModifiedAt applies equality check predicate on the "last_modified_at" field. It's identical to LastModifiedAtEQ.
 func LastModifiedAt(v time.Time) predicate.Subject {
 	return predicate.Subject(sql.FieldEQ(FieldLastModifiedAt, v))
-}
-
-// CodeEQ applies the EQ predicate on the "code" field.
-func CodeEQ(v string) predicate.Subject {
-	return predicate.Subject(sql.FieldEQ(FieldCode, v))
-}
-
-// CodeNEQ applies the NEQ predicate on the "code" field.
-func CodeNEQ(v string) predicate.Subject {
-	return predicate.Subject(sql.FieldNEQ(FieldCode, v))
-}
-
-// CodeIn applies the In predicate on the "code" field.
-func CodeIn(vs ...string) predicate.Subject {
-	return predicate.Subject(sql.FieldIn(FieldCode, vs...))
-}
-
-// CodeNotIn applies the NotIn predicate on the "code" field.
-func CodeNotIn(vs ...string) predicate.Subject {
-	return predicate.Subject(sql.FieldNotIn(FieldCode, vs...))
-}
-
-// CodeGT applies the GT predicate on the "code" field.
-func CodeGT(v string) predicate.Subject {
-	return predicate.Subject(sql.FieldGT(FieldCode, v))
-}
-
-// CodeGTE applies the GTE predicate on the "code" field.
-func CodeGTE(v string) predicate.Subject {
-	return predicate.Subject(sql.FieldGTE(FieldCode, v))
-}
-
-// CodeLT applies the LT predicate on the "code" field.
-func CodeLT(v string) predicate.Subject {
-	return predicate.Subject(sql.FieldLT(FieldCode, v))
-}
-
-// CodeLTE applies the LTE predicate on the "code" field.
-func CodeLTE(v string) predicate.Subject {
-	return predicate.Subject(sql.FieldLTE(FieldCode, v))
-}
-
-// CodeContains applies the Contains predicate on the "code" field.
-func CodeContains(v string) predicate.Subject {
-	return predicate.Subject(sql.FieldContains(FieldCode, v))
-}
-
-// CodeHasPrefix applies the HasPrefix predicate on the "code" field.
-func CodeHasPrefix(v string) predicate.Subject {
-	return predicate.Subject(sql.FieldHasPrefix(FieldCode, v))
-}
-
-// CodeHasSuffix applies the HasSuffix predicate on the "code" field.
-func CodeHasSuffix(v string) predicate.Subject {
-	return predicate.Subject(sql.FieldHasSuffix(FieldCode, v))
-}
-
-// CodeEqualFold applies the EqualFold predicate on the "code" field.
-func CodeEqualFold(v string) predicate.Subject {
-	return predicate.Subject(sql.FieldEqualFold(FieldCode, v))
-}
-
-// CodeContainsFold applies the ContainsFold predicate on the "code" field.
-func CodeContainsFold(v string) predicate.Subject {
-	return predicate.Subject(sql.FieldContainsFold(FieldCode, v))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.
@@ -375,7 +315,7 @@ func HasCourses() predicate.Subject {
 	return predicate.Subject(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, CoursesTable, CoursesColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, CoursesTable, CoursesColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

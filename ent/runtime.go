@@ -17,11 +17,11 @@ func init() {
 	courseFields := schema.Course{}.Fields()
 	_ = courseFields
 	// courseDescCreatedAt is the schema descriptor for created_at field.
-	courseDescCreatedAt := courseFields[2].Descriptor()
+	courseDescCreatedAt := courseFields[4].Descriptor()
 	// course.DefaultCreatedAt holds the default value on creation for the created_at field.
 	course.DefaultCreatedAt = courseDescCreatedAt.Default.(func() time.Time)
 	// courseDescLastModifiedAt is the schema descriptor for last_modified_at field.
-	courseDescLastModifiedAt := courseFields[3].Descriptor()
+	courseDescLastModifiedAt := courseFields[5].Descriptor()
 	// course.DefaultLastModifiedAt holds the default value on creation for the last_modified_at field.
 	course.DefaultLastModifiedAt = courseDescLastModifiedAt.Default.(func() time.Time)
 	// course.UpdateDefaultLastModifiedAt holds the default value on update for the last_modified_at field.

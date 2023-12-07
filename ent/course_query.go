@@ -25,7 +25,6 @@ type CourseQuery struct {
 	predicates    []predicate.Course
 	withSubject   *SubjectQuery
 	withProfessor *ProfessorQuery
-	withFKs       bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -76,7 +75,7 @@ func (cq *CourseQuery) QuerySubject() *SubjectQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(course.Table, course.FieldID, selector),
 			sqlgraph.To(subject.Table, subject.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, course.SubjectTable, course.SubjectColumn),
+			sqlgraph.Edge(sqlgraph.M2O, false, course.SubjectTable, course.SubjectColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
 		return fromU, nil
@@ -98,7 +97,7 @@ func (cq *CourseQuery) QueryProfessor() *ProfessorQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(course.Table, course.FieldID, selector),
 			sqlgraph.To(professor.Table, professor.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, course.ProfessorTable, course.ProfessorColumn),
+			sqlgraph.Edge(sqlgraph.M2O, false, course.ProfessorTable, course.ProfessorColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
 		return fromU, nil
@@ -405,19 +404,12 @@ func (cq *CourseQuery) prepareQuery(ctx context.Context) error {
 func (cq *CourseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Course, error) {
 	var (
 		nodes       = []*Course{}
-		withFKs     = cq.withFKs
 		_spec       = cq.querySpec()
 		loadedTypes = [2]bool{
 			cq.withSubject != nil,
 			cq.withProfessor != nil,
 		}
 	)
-	if cq.withSubject != nil || cq.withProfessor != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, course.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Course).scanValues(nil, columns)
 	}
@@ -452,13 +444,10 @@ func (cq *CourseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cours
 }
 
 func (cq *CourseQuery) loadSubject(ctx context.Context, query *SubjectQuery, nodes []*Course, init func(*Course), assign func(*Course, *Subject)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Course)
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Course)
 	for i := range nodes {
-		if nodes[i].subject_courses == nil {
-			continue
-		}
-		fk := *nodes[i].subject_courses
+		fk := nodes[i].SubjectID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -475,7 +464,7 @@ func (cq *CourseQuery) loadSubject(ctx context.Context, query *SubjectQuery, nod
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "subject_courses" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "subject_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -487,10 +476,7 @@ func (cq *CourseQuery) loadProfessor(ctx context.Context, query *ProfessorQuery,
 	ids := make([]string, 0, len(nodes))
 	nodeids := make(map[string][]*Course)
 	for i := range nodes {
-		if nodes[i].professor_courses == nil {
-			continue
-		}
-		fk := *nodes[i].professor_courses
+		fk := nodes[i].ProfessorID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -507,7 +493,7 @@ func (cq *CourseQuery) loadProfessor(ctx context.Context, query *ProfessorQuery,
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "professor_courses" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "professor_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -540,6 +526,12 @@ func (cq *CourseQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != course.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if cq.withSubject != nil {
+			_spec.Node.AddColumnOnce(course.FieldSubjectID)
+		}
+		if cq.withProfessor != nil {
+			_spec.Node.AddColumnOnce(course.FieldProfessorID)
 		}
 	}
 	if ps := cq.predicates; len(ps) > 0 {

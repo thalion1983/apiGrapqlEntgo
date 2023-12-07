@@ -72,43 +72,43 @@ func (cu *CourseUpdate) AddPeriod(i int) *CourseUpdate {
 	return cu
 }
 
+// SetProfessorID sets the "professor_id" field.
+func (cu *CourseUpdate) SetProfessorID(s string) *CourseUpdate {
+	cu.mutation.SetProfessorID(s)
+	return cu
+}
+
+// SetNillableProfessorID sets the "professor_id" field if the given value is not nil.
+func (cu *CourseUpdate) SetNillableProfessorID(s *string) *CourseUpdate {
+	if s != nil {
+		cu.SetProfessorID(*s)
+	}
+	return cu
+}
+
+// SetSubjectID sets the "subject_id" field.
+func (cu *CourseUpdate) SetSubjectID(s string) *CourseUpdate {
+	cu.mutation.SetSubjectID(s)
+	return cu
+}
+
+// SetNillableSubjectID sets the "subject_id" field if the given value is not nil.
+func (cu *CourseUpdate) SetNillableSubjectID(s *string) *CourseUpdate {
+	if s != nil {
+		cu.SetSubjectID(*s)
+	}
+	return cu
+}
+
 // SetLastModifiedAt sets the "last_modified_at" field.
 func (cu *CourseUpdate) SetLastModifiedAt(t time.Time) *CourseUpdate {
 	cu.mutation.SetLastModifiedAt(t)
 	return cu
 }
 
-// SetSubjectID sets the "subject" edge to the Subject entity by ID.
-func (cu *CourseUpdate) SetSubjectID(id int) *CourseUpdate {
-	cu.mutation.SetSubjectID(id)
-	return cu
-}
-
-// SetNillableSubjectID sets the "subject" edge to the Subject entity by ID if the given value is not nil.
-func (cu *CourseUpdate) SetNillableSubjectID(id *int) *CourseUpdate {
-	if id != nil {
-		cu = cu.SetSubjectID(*id)
-	}
-	return cu
-}
-
 // SetSubject sets the "subject" edge to the Subject entity.
 func (cu *CourseUpdate) SetSubject(s *Subject) *CourseUpdate {
 	return cu.SetSubjectID(s.ID)
-}
-
-// SetProfessorID sets the "professor" edge to the Professor entity by ID.
-func (cu *CourseUpdate) SetProfessorID(id string) *CourseUpdate {
-	cu.mutation.SetProfessorID(id)
-	return cu
-}
-
-// SetNillableProfessorID sets the "professor" edge to the Professor entity by ID if the given value is not nil.
-func (cu *CourseUpdate) SetNillableProfessorID(id *string) *CourseUpdate {
-	if id != nil {
-		cu = cu.SetProfessorID(*id)
-	}
-	return cu
 }
 
 // SetProfessor sets the "professor" edge to the Professor entity.
@@ -169,7 +169,21 @@ func (cu *CourseUpdate) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (cu *CourseUpdate) check() error {
+	if _, ok := cu.mutation.SubjectID(); cu.mutation.SubjectCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Course.subject"`)
+	}
+	if _, ok := cu.mutation.ProfessorID(); cu.mutation.ProfessorCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Course.professor"`)
+	}
+	return nil
+}
+
 func (cu *CourseUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := cu.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(course.Table, course.Columns, sqlgraph.NewFieldSpec(course.FieldID, field.TypeInt))
 	if ps := cu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -196,12 +210,12 @@ func (cu *CourseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if cu.mutation.SubjectCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: true,
+			Inverse: false,
 			Table:   course.SubjectTable,
 			Columns: []string{course.SubjectColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(subject.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(subject.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -209,12 +223,12 @@ func (cu *CourseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if nodes := cu.mutation.SubjectIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: true,
+			Inverse: false,
 			Table:   course.SubjectTable,
 			Columns: []string{course.SubjectColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(subject.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(subject.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -225,7 +239,7 @@ func (cu *CourseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if cu.mutation.ProfessorCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: true,
+			Inverse: false,
 			Table:   course.ProfessorTable,
 			Columns: []string{course.ProfessorColumn},
 			Bidi:    false,
@@ -238,7 +252,7 @@ func (cu *CourseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if nodes := cu.mutation.ProfessorIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: true,
+			Inverse: false,
 			Table:   course.ProfessorTable,
 			Columns: []string{course.ProfessorColumn},
 			Bidi:    false,
@@ -313,43 +327,43 @@ func (cuo *CourseUpdateOne) AddPeriod(i int) *CourseUpdateOne {
 	return cuo
 }
 
+// SetProfessorID sets the "professor_id" field.
+func (cuo *CourseUpdateOne) SetProfessorID(s string) *CourseUpdateOne {
+	cuo.mutation.SetProfessorID(s)
+	return cuo
+}
+
+// SetNillableProfessorID sets the "professor_id" field if the given value is not nil.
+func (cuo *CourseUpdateOne) SetNillableProfessorID(s *string) *CourseUpdateOne {
+	if s != nil {
+		cuo.SetProfessorID(*s)
+	}
+	return cuo
+}
+
+// SetSubjectID sets the "subject_id" field.
+func (cuo *CourseUpdateOne) SetSubjectID(s string) *CourseUpdateOne {
+	cuo.mutation.SetSubjectID(s)
+	return cuo
+}
+
+// SetNillableSubjectID sets the "subject_id" field if the given value is not nil.
+func (cuo *CourseUpdateOne) SetNillableSubjectID(s *string) *CourseUpdateOne {
+	if s != nil {
+		cuo.SetSubjectID(*s)
+	}
+	return cuo
+}
+
 // SetLastModifiedAt sets the "last_modified_at" field.
 func (cuo *CourseUpdateOne) SetLastModifiedAt(t time.Time) *CourseUpdateOne {
 	cuo.mutation.SetLastModifiedAt(t)
 	return cuo
 }
 
-// SetSubjectID sets the "subject" edge to the Subject entity by ID.
-func (cuo *CourseUpdateOne) SetSubjectID(id int) *CourseUpdateOne {
-	cuo.mutation.SetSubjectID(id)
-	return cuo
-}
-
-// SetNillableSubjectID sets the "subject" edge to the Subject entity by ID if the given value is not nil.
-func (cuo *CourseUpdateOne) SetNillableSubjectID(id *int) *CourseUpdateOne {
-	if id != nil {
-		cuo = cuo.SetSubjectID(*id)
-	}
-	return cuo
-}
-
 // SetSubject sets the "subject" edge to the Subject entity.
 func (cuo *CourseUpdateOne) SetSubject(s *Subject) *CourseUpdateOne {
 	return cuo.SetSubjectID(s.ID)
-}
-
-// SetProfessorID sets the "professor" edge to the Professor entity by ID.
-func (cuo *CourseUpdateOne) SetProfessorID(id string) *CourseUpdateOne {
-	cuo.mutation.SetProfessorID(id)
-	return cuo
-}
-
-// SetNillableProfessorID sets the "professor" edge to the Professor entity by ID if the given value is not nil.
-func (cuo *CourseUpdateOne) SetNillableProfessorID(id *string) *CourseUpdateOne {
-	if id != nil {
-		cuo = cuo.SetProfessorID(*id)
-	}
-	return cuo
 }
 
 // SetProfessor sets the "professor" edge to the Professor entity.
@@ -423,7 +437,21 @@ func (cuo *CourseUpdateOne) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (cuo *CourseUpdateOne) check() error {
+	if _, ok := cuo.mutation.SubjectID(); cuo.mutation.SubjectCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Course.subject"`)
+	}
+	if _, ok := cuo.mutation.ProfessorID(); cuo.mutation.ProfessorCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Course.professor"`)
+	}
+	return nil
+}
+
 func (cuo *CourseUpdateOne) sqlSave(ctx context.Context) (_node *Course, err error) {
+	if err := cuo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(course.Table, course.Columns, sqlgraph.NewFieldSpec(course.FieldID, field.TypeInt))
 	id, ok := cuo.mutation.ID()
 	if !ok {
@@ -467,12 +495,12 @@ func (cuo *CourseUpdateOne) sqlSave(ctx context.Context) (_node *Course, err err
 	if cuo.mutation.SubjectCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: true,
+			Inverse: false,
 			Table:   course.SubjectTable,
 			Columns: []string{course.SubjectColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(subject.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(subject.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -480,12 +508,12 @@ func (cuo *CourseUpdateOne) sqlSave(ctx context.Context) (_node *Course, err err
 	if nodes := cuo.mutation.SubjectIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: true,
+			Inverse: false,
 			Table:   course.SubjectTable,
 			Columns: []string{course.SubjectColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(subject.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(subject.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -496,7 +524,7 @@ func (cuo *CourseUpdateOne) sqlSave(ctx context.Context) (_node *Course, err err
 	if cuo.mutation.ProfessorCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: true,
+			Inverse: false,
 			Table:   course.ProfessorTable,
 			Columns: []string{course.ProfessorColumn},
 			Bidi:    false,
@@ -509,7 +537,7 @@ func (cuo *CourseUpdateOne) sqlSave(ctx context.Context) (_node *Course, err err
 	if nodes := cuo.mutation.ProfessorIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: true,
+			Inverse: false,
 			Table:   course.ProfessorTable,
 			Columns: []string{course.ProfessorColumn},
 			Bidi:    false,

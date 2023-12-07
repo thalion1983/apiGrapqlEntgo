@@ -15,8 +15,8 @@ var (
 		{Name: "period", Type: field.TypeInt},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "last_modified_at", Type: field.TypeTime},
-		{Name: "professor_courses", Type: field.TypeString, Nullable: true},
-		{Name: "subject_courses", Type: field.TypeInt, Nullable: true},
+		{Name: "subject_id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "char(6)"}},
+		{Name: "professor_id", Type: field.TypeString},
 	}
 	// CoursesTable holds the schema information for the "courses" table.
 	CoursesTable = &schema.Table{
@@ -25,16 +25,16 @@ var (
 		PrimaryKey: []*schema.Column{CoursesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "courses_professors_courses",
+				Symbol:     "courses_subjects_subject",
 				Columns:    []*schema.Column{CoursesColumns[5]},
-				RefColumns: []*schema.Column{ProfessorsColumns[0]},
-				OnDelete:   schema.SetNull,
+				RefColumns: []*schema.Column{SubjectsColumns[0]},
+				OnDelete:   schema.NoAction,
 			},
 			{
-				Symbol:     "courses_subjects_courses",
+				Symbol:     "courses_professors_professor",
 				Columns:    []*schema.Column{CoursesColumns[6]},
-				RefColumns: []*schema.Column{SubjectsColumns[0]},
-				OnDelete:   schema.SetNull,
+				RefColumns: []*schema.Column{ProfessorsColumns[0]},
+				OnDelete:   schema.NoAction,
 			},
 		},
 	}
@@ -62,8 +62,7 @@ var (
 	}
 	// SubjectsColumns holds the columns for the "subjects" table.
 	SubjectsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "code", Type: field.TypeString, Unique: true, SchemaType: map[string]string{"postgres": "char(6)"}},
+		{Name: "id", Type: field.TypeString, Unique: true, SchemaType: map[string]string{"postgres": "char(6)"}},
 		{Name: "name", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString},
 		{Name: "active", Type: field.TypeBool, Default: false},
@@ -77,9 +76,9 @@ var (
 		PrimaryKey: []*schema.Column{SubjectsColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "subject_code",
+				Name:    "subject_id",
 				Unique:  true,
-				Columns: []*schema.Column{SubjectsColumns[1]},
+				Columns: []*schema.Column{SubjectsColumns[0]},
 			},
 		},
 	}
@@ -92,6 +91,6 @@ var (
 )
 
 func init() {
-	CoursesTable.ForeignKeys[0].RefTable = ProfessorsTable
-	CoursesTable.ForeignKeys[1].RefTable = SubjectsTable
+	CoursesTable.ForeignKeys[0].RefTable = SubjectsTable
+	CoursesTable.ForeignKeys[1].RefTable = ProfessorsTable
 }

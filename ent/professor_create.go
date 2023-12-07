@@ -223,7 +223,7 @@ func (pc *ProfessorCreate) createSpec() (*Professor, *sqlgraph.CreateSpec) {
 	if nodes := pc.mutation.CoursesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
-			Inverse: false,
+			Inverse: true,
 			Table:   professor.CoursesTable,
 			Columns: []string{professor.CoursesColumn},
 			Bidi:    false,

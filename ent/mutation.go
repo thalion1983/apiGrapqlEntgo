@@ -44,7 +44,7 @@ type CourseMutation struct {
 	created_at       *time.Time
 	last_modified_at *time.Time
 	clearedFields    map[string]struct{}
-	subject          *int
+	subject          *string
 	clearedsubject   bool
 	professor        *string
 	clearedprofessor bool
@@ -263,6 +263,78 @@ func (m *CourseMutation) ResetPeriod() {
 	m.addperiod = nil
 }
 
+// SetProfessorID sets the "professor_id" field.
+func (m *CourseMutation) SetProfessorID(s string) {
+	m.professor = &s
+}
+
+// ProfessorID returns the value of the "professor_id" field in the mutation.
+func (m *CourseMutation) ProfessorID() (r string, exists bool) {
+	v := m.professor
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProfessorID returns the old "professor_id" field's value of the Course entity.
+// If the Course object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CourseMutation) OldProfessorID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProfessorID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProfessorID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProfessorID: %w", err)
+	}
+	return oldValue.ProfessorID, nil
+}
+
+// ResetProfessorID resets all changes to the "professor_id" field.
+func (m *CourseMutation) ResetProfessorID() {
+	m.professor = nil
+}
+
+// SetSubjectID sets the "subject_id" field.
+func (m *CourseMutation) SetSubjectID(s string) {
+	m.subject = &s
+}
+
+// SubjectID returns the value of the "subject_id" field in the mutation.
+func (m *CourseMutation) SubjectID() (r string, exists bool) {
+	v := m.subject
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSubjectID returns the old "subject_id" field's value of the Course entity.
+// If the Course object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CourseMutation) OldSubjectID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSubjectID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSubjectID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSubjectID: %w", err)
+	}
+	return oldValue.SubjectID, nil
+}
+
+// ResetSubjectID resets all changes to the "subject_id" field.
+func (m *CourseMutation) ResetSubjectID() {
+	m.subject = nil
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (m *CourseMutation) SetCreatedAt(t time.Time) {
 	m.created_at = &t
@@ -335,14 +407,10 @@ func (m *CourseMutation) ResetLastModifiedAt() {
 	m.last_modified_at = nil
 }
 
-// SetSubjectID sets the "subject" edge to the Subject entity by id.
-func (m *CourseMutation) SetSubjectID(id int) {
-	m.subject = &id
-}
-
 // ClearSubject clears the "subject" edge to the Subject entity.
 func (m *CourseMutation) ClearSubject() {
 	m.clearedsubject = true
+	m.clearedFields[course.FieldSubjectID] = struct{}{}
 }
 
 // SubjectCleared reports if the "subject" edge to the Subject entity was cleared.
@@ -350,18 +418,10 @@ func (m *CourseMutation) SubjectCleared() bool {
 	return m.clearedsubject
 }
 
-// SubjectID returns the "subject" edge ID in the mutation.
-func (m *CourseMutation) SubjectID() (id int, exists bool) {
-	if m.subject != nil {
-		return *m.subject, true
-	}
-	return
-}
-
 // SubjectIDs returns the "subject" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // SubjectID instead. It exists only for internal usage by the builders.
-func (m *CourseMutation) SubjectIDs() (ids []int) {
+func (m *CourseMutation) SubjectIDs() (ids []string) {
 	if id := m.subject; id != nil {
 		ids = append(ids, *id)
 	}
@@ -374,27 +434,15 @@ func (m *CourseMutation) ResetSubject() {
 	m.clearedsubject = false
 }
 
-// SetProfessorID sets the "professor" edge to the Professor entity by id.
-func (m *CourseMutation) SetProfessorID(id string) {
-	m.professor = &id
-}
-
 // ClearProfessor clears the "professor" edge to the Professor entity.
 func (m *CourseMutation) ClearProfessor() {
 	m.clearedprofessor = true
+	m.clearedFields[course.FieldProfessorID] = struct{}{}
 }
 
 // ProfessorCleared reports if the "professor" edge to the Professor entity was cleared.
 func (m *CourseMutation) ProfessorCleared() bool {
 	return m.clearedprofessor
-}
-
-// ProfessorID returns the "professor" edge ID in the mutation.
-func (m *CourseMutation) ProfessorID() (id string, exists bool) {
-	if m.professor != nil {
-		return *m.professor, true
-	}
-	return
 }
 
 // ProfessorIDs returns the "professor" edge IDs in the mutation.
@@ -447,12 +495,18 @@ func (m *CourseMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CourseMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 6)
 	if m.year != nil {
 		fields = append(fields, course.FieldYear)
 	}
 	if m.period != nil {
 		fields = append(fields, course.FieldPeriod)
+	}
+	if m.professor != nil {
+		fields = append(fields, course.FieldProfessorID)
+	}
+	if m.subject != nil {
+		fields = append(fields, course.FieldSubjectID)
 	}
 	if m.created_at != nil {
 		fields = append(fields, course.FieldCreatedAt)
@@ -472,6 +526,10 @@ func (m *CourseMutation) Field(name string) (ent.Value, bool) {
 		return m.Year()
 	case course.FieldPeriod:
 		return m.Period()
+	case course.FieldProfessorID:
+		return m.ProfessorID()
+	case course.FieldSubjectID:
+		return m.SubjectID()
 	case course.FieldCreatedAt:
 		return m.CreatedAt()
 	case course.FieldLastModifiedAt:
@@ -489,6 +547,10 @@ func (m *CourseMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldYear(ctx)
 	case course.FieldPeriod:
 		return m.OldPeriod(ctx)
+	case course.FieldProfessorID:
+		return m.OldProfessorID(ctx)
+	case course.FieldSubjectID:
+		return m.OldSubjectID(ctx)
 	case course.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case course.FieldLastModifiedAt:
@@ -515,6 +577,20 @@ func (m *CourseMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPeriod(v)
+		return nil
+	case course.FieldProfessorID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProfessorID(v)
+		return nil
+	case course.FieldSubjectID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSubjectID(v)
 		return nil
 	case course.FieldCreatedAt:
 		v, ok := value.(time.Time)
@@ -611,6 +687,12 @@ func (m *CourseMutation) ResetField(name string) error {
 		return nil
 	case course.FieldPeriod:
 		m.ResetPeriod()
+		return nil
+	case course.FieldProfessorID:
+		m.ResetProfessorID()
+		return nil
+	case course.FieldSubjectID:
+		m.ResetSubjectID()
 		return nil
 	case course.FieldCreatedAt:
 		m.ResetCreatedAt()
@@ -1360,8 +1442,7 @@ type SubjectMutation struct {
 	config
 	op               Op
 	typ              string
-	id               *int
-	code             *string
+	id               *string
 	name             *string
 	description      *string
 	active           *bool
@@ -1396,7 +1477,7 @@ func newSubjectMutation(c config, op Op, opts ...subjectOption) *SubjectMutation
 }
 
 // withSubjectID sets the ID field of the mutation.
-func withSubjectID(id int) subjectOption {
+func withSubjectID(id string) subjectOption {
 	return func(m *SubjectMutation) {
 		var (
 			err   error
@@ -1446,9 +1527,15 @@ func (m SubjectMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Subject entities.
+func (m *SubjectMutation) SetID(id string) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *SubjectMutation) ID() (id int, exists bool) {
+func (m *SubjectMutation) ID() (id string, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -1459,12 +1546,12 @@ func (m *SubjectMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *SubjectMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *SubjectMutation) IDs(ctx context.Context) ([]string, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []string{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -1472,42 +1559,6 @@ func (m *SubjectMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
-}
-
-// SetCode sets the "code" field.
-func (m *SubjectMutation) SetCode(s string) {
-	m.code = &s
-}
-
-// Code returns the value of the "code" field in the mutation.
-func (m *SubjectMutation) Code() (r string, exists bool) {
-	v := m.code
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCode returns the old "code" field's value of the Subject entity.
-// If the Subject object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SubjectMutation) OldCode(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCode is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCode requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCode: %w", err)
-	}
-	return oldValue.Code, nil
-}
-
-// ResetCode resets all changes to the "code" field.
-func (m *SubjectMutation) ResetCode() {
-	m.code = nil
 }
 
 // SetName sets the "name" field.
@@ -1778,10 +1829,7 @@ func (m *SubjectMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SubjectMutation) Fields() []string {
-	fields := make([]string, 0, 6)
-	if m.code != nil {
-		fields = append(fields, subject.FieldCode)
-	}
+	fields := make([]string, 0, 5)
 	if m.name != nil {
 		fields = append(fields, subject.FieldName)
 	}
@@ -1805,8 +1853,6 @@ func (m *SubjectMutation) Fields() []string {
 // schema.
 func (m *SubjectMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case subject.FieldCode:
-		return m.Code()
 	case subject.FieldName:
 		return m.Name()
 	case subject.FieldDescription:
@@ -1826,8 +1872,6 @@ func (m *SubjectMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *SubjectMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case subject.FieldCode:
-		return m.OldCode(ctx)
 	case subject.FieldName:
 		return m.OldName(ctx)
 	case subject.FieldDescription:
@@ -1847,13 +1891,6 @@ func (m *SubjectMutation) OldField(ctx context.Context, name string) (ent.Value,
 // type.
 func (m *SubjectMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case subject.FieldCode:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCode(v)
-		return nil
 	case subject.FieldName:
 		v, ok := value.(string)
 		if !ok {
@@ -1938,9 +1975,6 @@ func (m *SubjectMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *SubjectMutation) ResetField(name string) error {
 	switch name {
-	case subject.FieldCode:
-		m.ResetCode()
-		return nil
 	case subject.FieldName:
 		m.ResetName()
 		return nil

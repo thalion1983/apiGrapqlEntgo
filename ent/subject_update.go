@@ -29,20 +29,6 @@ func (su *SubjectUpdate) Where(ps ...predicate.Subject) *SubjectUpdate {
 	return su
 }
 
-// SetCode sets the "code" field.
-func (su *SubjectUpdate) SetCode(s string) *SubjectUpdate {
-	su.mutation.SetCode(s)
-	return su
-}
-
-// SetNillableCode sets the "code" field if the given value is not nil.
-func (su *SubjectUpdate) SetNillableCode(s *string) *SubjectUpdate {
-	if s != nil {
-		su.SetCode(*s)
-	}
-	return su
-}
-
 // SetName sets the "name" field.
 func (su *SubjectUpdate) SetName(s string) *SubjectUpdate {
 	su.mutation.SetName(s)
@@ -187,16 +173,13 @@ func (su *SubjectUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := su.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(subject.Table, subject.Columns, sqlgraph.NewFieldSpec(subject.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(subject.Table, subject.Columns, sqlgraph.NewFieldSpec(subject.FieldID, field.TypeString))
 	if ps := su.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := su.mutation.Code(); ok {
-		_spec.SetField(subject.FieldCode, field.TypeString, value)
 	}
 	if value, ok := su.mutation.Name(); ok {
 		_spec.SetField(subject.FieldName, field.TypeString, value)
@@ -213,7 +196,7 @@ func (su *SubjectUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if su.mutation.CoursesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
-			Inverse: false,
+			Inverse: true,
 			Table:   subject.CoursesTable,
 			Columns: []string{subject.CoursesColumn},
 			Bidi:    false,
@@ -226,7 +209,7 @@ func (su *SubjectUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if nodes := su.mutation.RemovedCoursesIDs(); len(nodes) > 0 && !su.mutation.CoursesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
-			Inverse: false,
+			Inverse: true,
 			Table:   subject.CoursesTable,
 			Columns: []string{subject.CoursesColumn},
 			Bidi:    false,
@@ -242,7 +225,7 @@ func (su *SubjectUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if nodes := su.mutation.CoursesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
-			Inverse: false,
+			Inverse: true,
 			Table:   subject.CoursesTable,
 			Columns: []string{subject.CoursesColumn},
 			Bidi:    false,
@@ -273,20 +256,6 @@ type SubjectUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *SubjectMutation
-}
-
-// SetCode sets the "code" field.
-func (suo *SubjectUpdateOne) SetCode(s string) *SubjectUpdateOne {
-	suo.mutation.SetCode(s)
-	return suo
-}
-
-// SetNillableCode sets the "code" field if the given value is not nil.
-func (suo *SubjectUpdateOne) SetNillableCode(s *string) *SubjectUpdateOne {
-	if s != nil {
-		suo.SetCode(*s)
-	}
-	return suo
 }
 
 // SetName sets the "name" field.
@@ -446,7 +415,7 @@ func (suo *SubjectUpdateOne) sqlSave(ctx context.Context) (_node *Subject, err e
 	if err := suo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(subject.Table, subject.Columns, sqlgraph.NewFieldSpec(subject.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(subject.Table, subject.Columns, sqlgraph.NewFieldSpec(subject.FieldID, field.TypeString))
 	id, ok := suo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Subject.id" for update`)}
@@ -471,9 +440,6 @@ func (suo *SubjectUpdateOne) sqlSave(ctx context.Context) (_node *Subject, err e
 			}
 		}
 	}
-	if value, ok := suo.mutation.Code(); ok {
-		_spec.SetField(subject.FieldCode, field.TypeString, value)
-	}
 	if value, ok := suo.mutation.Name(); ok {
 		_spec.SetField(subject.FieldName, field.TypeString, value)
 	}
@@ -489,7 +455,7 @@ func (suo *SubjectUpdateOne) sqlSave(ctx context.Context) (_node *Subject, err e
 	if suo.mutation.CoursesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
-			Inverse: false,
+			Inverse: true,
 			Table:   subject.CoursesTable,
 			Columns: []string{subject.CoursesColumn},
 			Bidi:    false,
@@ -502,7 +468,7 @@ func (suo *SubjectUpdateOne) sqlSave(ctx context.Context) (_node *Subject, err e
 	if nodes := suo.mutation.RemovedCoursesIDs(); len(nodes) > 0 && !suo.mutation.CoursesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
-			Inverse: false,
+			Inverse: true,
 			Table:   subject.CoursesTable,
 			Columns: []string{subject.CoursesColumn},
 			Bidi:    false,
@@ -518,7 +484,7 @@ func (suo *SubjectUpdateOne) sqlSave(ctx context.Context) (_node *Subject, err e
 	if nodes := suo.mutation.CoursesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
-			Inverse: false,
+			Inverse: true,
 			Table:   subject.CoursesTable,
 			Columns: []string{subject.CoursesColumn},
 			Bidi:    false,

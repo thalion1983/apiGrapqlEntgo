@@ -334,7 +334,7 @@ func (c *CourseClient) QuerySubject(co *Course) *SubjectQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(course.Table, course.FieldID, id),
 			sqlgraph.To(subject.Table, subject.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, course.SubjectTable, course.SubjectColumn),
+			sqlgraph.Edge(sqlgraph.M2O, false, course.SubjectTable, course.SubjectColumn),
 		)
 		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
 		return fromV, nil
@@ -350,7 +350,7 @@ func (c *CourseClient) QueryProfessor(co *Course) *ProfessorQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(course.Table, course.FieldID, id),
 			sqlgraph.To(professor.Table, professor.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, course.ProfessorTable, course.ProfessorColumn),
+			sqlgraph.Edge(sqlgraph.M2O, false, course.ProfessorTable, course.ProfessorColumn),
 		)
 		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
 		return fromV, nil
@@ -499,7 +499,7 @@ func (c *ProfessorClient) QueryCourses(pr *Professor) *CourseQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(professor.Table, professor.FieldID, id),
 			sqlgraph.To(course.Table, course.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, professor.CoursesTable, professor.CoursesColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, professor.CoursesTable, professor.CoursesColumn),
 		)
 		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
 		return fromV, nil
@@ -593,7 +593,7 @@ func (c *SubjectClient) UpdateOne(s *Subject) *SubjectUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *SubjectClient) UpdateOneID(id int) *SubjectUpdateOne {
+func (c *SubjectClient) UpdateOneID(id string) *SubjectUpdateOne {
 	mutation := newSubjectMutation(c.config, OpUpdateOne, withSubjectID(id))
 	return &SubjectUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -610,7 +610,7 @@ func (c *SubjectClient) DeleteOne(s *Subject) *SubjectDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *SubjectClient) DeleteOneID(id int) *SubjectDeleteOne {
+func (c *SubjectClient) DeleteOneID(id string) *SubjectDeleteOne {
 	builder := c.Delete().Where(subject.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -627,12 +627,12 @@ func (c *SubjectClient) Query() *SubjectQuery {
 }
 
 // Get returns a Subject entity by its id.
-func (c *SubjectClient) Get(ctx context.Context, id int) (*Subject, error) {
+func (c *SubjectClient) Get(ctx context.Context, id string) (*Subject, error) {
 	return c.Query().Where(subject.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *SubjectClient) GetX(ctx context.Context, id int) *Subject {
+func (c *SubjectClient) GetX(ctx context.Context, id string) *Subject {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -648,7 +648,7 @@ func (c *SubjectClient) QueryCourses(s *Subject) *CourseQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(subject.Table, subject.FieldID, id),
 			sqlgraph.To(course.Table, course.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, subject.CoursesTable, subject.CoursesColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, subject.CoursesTable, subject.CoursesColumn),
 		)
 		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
 		return fromV, nil

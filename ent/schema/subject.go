@@ -18,7 +18,7 @@ type Subject struct {
 // Fields of the Subject.
 func (Subject) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("code").Unique().
+		field.String("id").Unique().
 			SchemaType(map[string]string{
 				dialect.Postgres: "char(6)",
 			}),
@@ -33,13 +33,13 @@ func (Subject) Fields() []ent.Field {
 // Edges of the Subject.
 func (Subject) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("courses", Course.Type),
+		edge.From("courses", Course.Type).Ref("subject"),
 	}
 }
 
 // Indexes of the Subject.
 func (Subject) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("code").Unique(),
+		index.Fields("id").Unique(),
 	}
 }

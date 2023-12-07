@@ -16,9 +16,7 @@ import (
 type Subject struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
-	// Code holds the value of the "code" field.
-	Code string `json:"code,omitempty"`
+	ID string `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Description holds the value of the "description" field.
@@ -60,9 +58,7 @@ func (*Subject) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case subject.FieldActive:
 			values[i] = new(sql.NullBool)
-		case subject.FieldID:
-			values[i] = new(sql.NullInt64)
-		case subject.FieldCode, subject.FieldName, subject.FieldDescription:
+		case subject.FieldID, subject.FieldName, subject.FieldDescription:
 			values[i] = new(sql.NullString)
 		case subject.FieldCreatedAt, subject.FieldLastModifiedAt:
 			values[i] = new(sql.NullTime)
@@ -82,16 +78,10 @@ func (s *Subject) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case subject.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
-			}
-			s.ID = int(value.Int64)
-		case subject.FieldCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field code", values[i])
+				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
-				s.Code = value.String
+				s.ID = value.String
 			}
 		case subject.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -164,9 +154,6 @@ func (s *Subject) String() string {
 	var builder strings.Builder
 	builder.WriteString("Subject(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", s.ID))
-	builder.WriteString("code=")
-	builder.WriteString(s.Code)
-	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(s.Name)
 	builder.WriteString(", ")

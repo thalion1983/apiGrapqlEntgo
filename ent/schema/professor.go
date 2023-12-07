@@ -29,7 +29,7 @@ func (Professor) Fields() []ent.Field {
 // Edges of the Professor.
 func (Professor) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("courses", Course.Type),
+		edge.From("courses", Course.Type).Ref("professor"),
 	}
 }
 

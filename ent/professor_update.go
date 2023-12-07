@@ -196,7 +196,7 @@ func (pu *ProfessorUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if pu.mutation.CoursesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
-			Inverse: false,
+			Inverse: true,
 			Table:   professor.CoursesTable,
 			Columns: []string{professor.CoursesColumn},
 			Bidi:    false,
@@ -209,7 +209,7 @@ func (pu *ProfessorUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if nodes := pu.mutation.RemovedCoursesIDs(); len(nodes) > 0 && !pu.mutation.CoursesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
-			Inverse: false,
+			Inverse: true,
 			Table:   professor.CoursesTable,
 			Columns: []string{professor.CoursesColumn},
 			Bidi:    false,
@@ -225,7 +225,7 @@ func (pu *ProfessorUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if nodes := pu.mutation.CoursesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
-			Inverse: false,
+			Inverse: true,
 			Table:   professor.CoursesTable,
 			Columns: []string{professor.CoursesColumn},
 			Bidi:    false,
@@ -455,7 +455,7 @@ func (puo *ProfessorUpdateOne) sqlSave(ctx context.Context) (_node *Professor, e
 	if puo.mutation.CoursesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
-			Inverse: false,
+			Inverse: true,
 			Table:   professor.CoursesTable,
 			Columns: []string{professor.CoursesColumn},
 			Bidi:    false,
@@ -468,7 +468,7 @@ func (puo *ProfessorUpdateOne) sqlSave(ctx context.Context) (_node *Professor, e
 	if nodes := puo.mutation.RemovedCoursesIDs(); len(nodes) > 0 && !puo.mutation.CoursesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
-			Inverse: false,
+			Inverse: true,
 			Table:   professor.CoursesTable,
 			Columns: []string{professor.CoursesColumn},
 			Bidi:    false,
@@ -484,7 +484,7 @@ func (puo *ProfessorUpdateOne) sqlSave(ctx context.Context) (_node *Professor, e
 	if nodes := puo.mutation.CoursesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
-			Inverse: false,
+			Inverse: true,
 			Table:   professor.CoursesTable,
 			Columns: []string{professor.CoursesColumn},
 			Bidi:    false,

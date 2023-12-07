@@ -74,7 +74,7 @@ func (pq *ProfessorQuery) QueryCourses() *CourseQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(professor.Table, professor.FieldID, selector),
 			sqlgraph.To(course.Table, course.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, professor.CoursesTable, professor.CoursesColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, professor.CoursesTable, professor.CoursesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -412,7 +412,9 @@ func (pq *ProfessorQuery) loadCourses(ctx context.Context, query *CourseQuery, n
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(course.FieldProfessorID)
+	}
 	query.Where(predicate.Course(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(professor.CoursesColumn), fks...))
 	}))
@@ -421,13 +423,10 @@ func (pq *ProfessorQuery) loadCourses(ctx context.Context, query *CourseQuery, n
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.professor_courses
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "professor_courses" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.ProfessorID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "professor_courses" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "professor_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

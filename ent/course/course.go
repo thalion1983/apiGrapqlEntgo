@@ -18,6 +18,10 @@ const (
 	FieldYear = "year"
 	// FieldPeriod holds the string denoting the period field in the database.
 	FieldPeriod = "period"
+	// FieldProfessorID holds the string denoting the professor_id field in the database.
+	FieldProfessorID = "professor_id"
+	// FieldSubjectID holds the string denoting the subject_id field in the database.
+	FieldSubjectID = "subject_id"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldLastModifiedAt holds the string denoting the last_modified_at field in the database.
@@ -34,14 +38,14 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "subject" package.
 	SubjectInverseTable = "subjects"
 	// SubjectColumn is the table column denoting the subject relation/edge.
-	SubjectColumn = "subject_courses"
+	SubjectColumn = "subject_id"
 	// ProfessorTable is the table that holds the professor relation/edge.
 	ProfessorTable = "courses"
 	// ProfessorInverseTable is the table name for the Professor entity.
 	// It exists in this package in order to avoid circular dependency with the "professor" package.
 	ProfessorInverseTable = "professors"
 	// ProfessorColumn is the table column denoting the professor relation/edge.
-	ProfessorColumn = "professor_courses"
+	ProfessorColumn = "professor_id"
 )
 
 // Columns holds all SQL columns for course fields.
@@ -49,26 +53,16 @@ var Columns = []string{
 	FieldID,
 	FieldYear,
 	FieldPeriod,
+	FieldProfessorID,
+	FieldSubjectID,
 	FieldCreatedAt,
 	FieldLastModifiedAt,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "courses"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"professor_courses",
-	"subject_courses",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -102,6 +96,16 @@ func ByPeriod(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPeriod, opts...).ToFunc()
 }
 
+// ByProfessorID orders the results by the professor_id field.
+func ByProfessorID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProfessorID, opts...).ToFunc()
+}
+
+// BySubjectID orders the results by the subject_id field.
+func BySubjectID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSubjectID, opts...).ToFunc()
+}
+
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
@@ -129,13 +133,13 @@ func newSubjectStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(SubjectInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, SubjectTable, SubjectColumn),
+		sqlgraph.Edge(sqlgraph.M2O, false, SubjectTable, SubjectColumn),
 	)
 }
 func newProfessorStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ProfessorInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, ProfessorTable, ProfessorColumn),
+		sqlgraph.Edge(sqlgraph.M2O, false, ProfessorTable, ProfessorColumn),
 	)
 }

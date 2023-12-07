@@ -74,7 +74,7 @@ func (sq *SubjectQuery) QueryCourses() *CourseQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(subject.Table, subject.FieldID, selector),
 			sqlgraph.To(course.Table, course.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, subject.CoursesTable, subject.CoursesColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, subject.CoursesTable, subject.CoursesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -106,8 +106,8 @@ func (sq *SubjectQuery) FirstX(ctx context.Context) *Subject {
 
 // FirstID returns the first Subject ID from the query.
 // Returns a *NotFoundError when no Subject ID was found.
-func (sq *SubjectQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (sq *SubjectQuery) FirstID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = sq.Limit(1).IDs(setContextOp(ctx, sq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -119,7 +119,7 @@ func (sq *SubjectQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (sq *SubjectQuery) FirstIDX(ctx context.Context) int {
+func (sq *SubjectQuery) FirstIDX(ctx context.Context) string {
 	id, err := sq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -157,8 +157,8 @@ func (sq *SubjectQuery) OnlyX(ctx context.Context) *Subject {
 // OnlyID is like Only, but returns the only Subject ID in the query.
 // Returns a *NotSingularError when more than one Subject ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (sq *SubjectQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (sq *SubjectQuery) OnlyID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = sq.Limit(2).IDs(setContextOp(ctx, sq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -174,7 +174,7 @@ func (sq *SubjectQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (sq *SubjectQuery) OnlyIDX(ctx context.Context) int {
+func (sq *SubjectQuery) OnlyIDX(ctx context.Context) string {
 	id, err := sq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -202,7 +202,7 @@ func (sq *SubjectQuery) AllX(ctx context.Context) []*Subject {
 }
 
 // IDs executes the query and returns a list of Subject IDs.
-func (sq *SubjectQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (sq *SubjectQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if sq.ctx.Unique == nil && sq.path != nil {
 		sq.Unique(true)
 	}
@@ -214,7 +214,7 @@ func (sq *SubjectQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (sq *SubjectQuery) IDsX(ctx context.Context) []int {
+func (sq *SubjectQuery) IDsX(ctx context.Context) []string {
 	ids, err := sq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -298,12 +298,12 @@ func (sq *SubjectQuery) WithCourses(opts ...func(*CourseQuery)) *SubjectQuery {
 // Example:
 //
 //	var v []struct {
-//		Code string `json:"code,omitempty"`
+//		Name string `json:"name,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Subject.Query().
-//		GroupBy(subject.FieldCode).
+//		GroupBy(subject.FieldName).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (sq *SubjectQuery) GroupBy(field string, fields ...string) *SubjectGroupBy {
@@ -321,11 +321,11 @@ func (sq *SubjectQuery) GroupBy(field string, fields ...string) *SubjectGroupBy 
 // Example:
 //
 //	var v []struct {
-//		Code string `json:"code,omitempty"`
+//		Name string `json:"name,omitempty"`
 //	}
 //
 //	client.Subject.Query().
-//		Select(subject.FieldCode).
+//		Select(subject.FieldName).
 //		Scan(ctx, &v)
 func (sq *SubjectQuery) Select(fields ...string) *SubjectSelect {
 	sq.ctx.Fields = append(sq.ctx.Fields, fields...)
@@ -404,7 +404,7 @@ func (sq *SubjectQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Subj
 
 func (sq *SubjectQuery) loadCourses(ctx context.Context, query *CourseQuery, nodes []*Subject, init func(*Subject), assign func(*Subject, *Course)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Subject)
+	nodeids := make(map[string]*Subject)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -412,7 +412,9 @@ func (sq *SubjectQuery) loadCourses(ctx context.Context, query *CourseQuery, nod
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(course.FieldSubjectID)
+	}
 	query.Where(predicate.Course(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(subject.CoursesColumn), fks...))
 	}))
@@ -421,13 +423,10 @@ func (sq *SubjectQuery) loadCourses(ctx context.Context, query *CourseQuery, nod
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.subject_courses
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "subject_courses" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.SubjectID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "subject_courses" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "subject_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -444,7 +443,7 @@ func (sq *SubjectQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (sq *SubjectQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(subject.Table, subject.Columns, sqlgraph.NewFieldSpec(subject.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(subject.Table, subject.Columns, sqlgraph.NewFieldSpec(subject.FieldID, field.TypeString))
 	_spec.From = sq.sql
 	if unique := sq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

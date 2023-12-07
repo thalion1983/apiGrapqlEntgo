@@ -34,7 +34,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "course" package.
 	CoursesInverseTable = "courses"
 	// CoursesColumn is the table column denoting the courses relation/edge.
-	CoursesColumn = "professor_courses"
+	CoursesColumn = "professor_id"
 )
 
 // Columns holds all SQL columns for professor fields.
@@ -122,6 +122,6 @@ func newCoursesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(CoursesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, CoursesTable, CoursesColumn),
+		sqlgraph.Edge(sqlgraph.O2M, true, CoursesTable, CoursesColumn),
 	)
 }

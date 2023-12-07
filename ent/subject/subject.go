@@ -14,8 +14,6 @@ const (
 	Label = "subject"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldCode holds the string denoting the code field in the database.
-	FieldCode = "code"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
 	// FieldDescription holds the string denoting the description field in the database.
@@ -36,13 +34,12 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "course" package.
 	CoursesInverseTable = "courses"
 	// CoursesColumn is the table column denoting the courses relation/edge.
-	CoursesColumn = "subject_courses"
+	CoursesColumn = "subject_id"
 )
 
 // Columns holds all SQL columns for subject fields.
 var Columns = []string{
 	FieldID,
-	FieldCode,
 	FieldName,
 	FieldDescription,
 	FieldActive,
@@ -81,11 +78,6 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
-}
-
-// ByCode orders the results by the code field.
-func ByCode(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCode, opts...).ToFunc()
 }
 
 // ByName orders the results by the name field.
@@ -130,6 +122,6 @@ func newCoursesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(CoursesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, CoursesTable, CoursesColumn),
+		sqlgraph.Edge(sqlgraph.O2M, true, CoursesTable, CoursesColumn),
 	)
 }

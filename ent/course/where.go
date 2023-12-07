@@ -65,6 +65,16 @@ func Period(v int) predicate.Course {
 	return predicate.Course(sql.FieldEQ(FieldPeriod, v))
 }
 
+// ProfessorID applies equality check predicate on the "professor_id" field. It's identical to ProfessorIDEQ.
+func ProfessorID(v string) predicate.Course {
+	return predicate.Course(sql.FieldEQ(FieldProfessorID, v))
+}
+
+// SubjectID applies equality check predicate on the "subject_id" field. It's identical to SubjectIDEQ.
+func SubjectID(v string) predicate.Course {
+	return predicate.Course(sql.FieldEQ(FieldSubjectID, v))
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Course {
 	return predicate.Course(sql.FieldEQ(FieldCreatedAt, v))
@@ -155,6 +165,136 @@ func PeriodLTE(v int) predicate.Course {
 	return predicate.Course(sql.FieldLTE(FieldPeriod, v))
 }
 
+// ProfessorIDEQ applies the EQ predicate on the "professor_id" field.
+func ProfessorIDEQ(v string) predicate.Course {
+	return predicate.Course(sql.FieldEQ(FieldProfessorID, v))
+}
+
+// ProfessorIDNEQ applies the NEQ predicate on the "professor_id" field.
+func ProfessorIDNEQ(v string) predicate.Course {
+	return predicate.Course(sql.FieldNEQ(FieldProfessorID, v))
+}
+
+// ProfessorIDIn applies the In predicate on the "professor_id" field.
+func ProfessorIDIn(vs ...string) predicate.Course {
+	return predicate.Course(sql.FieldIn(FieldProfessorID, vs...))
+}
+
+// ProfessorIDNotIn applies the NotIn predicate on the "professor_id" field.
+func ProfessorIDNotIn(vs ...string) predicate.Course {
+	return predicate.Course(sql.FieldNotIn(FieldProfessorID, vs...))
+}
+
+// ProfessorIDGT applies the GT predicate on the "professor_id" field.
+func ProfessorIDGT(v string) predicate.Course {
+	return predicate.Course(sql.FieldGT(FieldProfessorID, v))
+}
+
+// ProfessorIDGTE applies the GTE predicate on the "professor_id" field.
+func ProfessorIDGTE(v string) predicate.Course {
+	return predicate.Course(sql.FieldGTE(FieldProfessorID, v))
+}
+
+// ProfessorIDLT applies the LT predicate on the "professor_id" field.
+func ProfessorIDLT(v string) predicate.Course {
+	return predicate.Course(sql.FieldLT(FieldProfessorID, v))
+}
+
+// ProfessorIDLTE applies the LTE predicate on the "professor_id" field.
+func ProfessorIDLTE(v string) predicate.Course {
+	return predicate.Course(sql.FieldLTE(FieldProfessorID, v))
+}
+
+// ProfessorIDContains applies the Contains predicate on the "professor_id" field.
+func ProfessorIDContains(v string) predicate.Course {
+	return predicate.Course(sql.FieldContains(FieldProfessorID, v))
+}
+
+// ProfessorIDHasPrefix applies the HasPrefix predicate on the "professor_id" field.
+func ProfessorIDHasPrefix(v string) predicate.Course {
+	return predicate.Course(sql.FieldHasPrefix(FieldProfessorID, v))
+}
+
+// ProfessorIDHasSuffix applies the HasSuffix predicate on the "professor_id" field.
+func ProfessorIDHasSuffix(v string) predicate.Course {
+	return predicate.Course(sql.FieldHasSuffix(FieldProfessorID, v))
+}
+
+// ProfessorIDEqualFold applies the EqualFold predicate on the "professor_id" field.
+func ProfessorIDEqualFold(v string) predicate.Course {
+	return predicate.Course(sql.FieldEqualFold(FieldProfessorID, v))
+}
+
+// ProfessorIDContainsFold applies the ContainsFold predicate on the "professor_id" field.
+func ProfessorIDContainsFold(v string) predicate.Course {
+	return predicate.Course(sql.FieldContainsFold(FieldProfessorID, v))
+}
+
+// SubjectIDEQ applies the EQ predicate on the "subject_id" field.
+func SubjectIDEQ(v string) predicate.Course {
+	return predicate.Course(sql.FieldEQ(FieldSubjectID, v))
+}
+
+// SubjectIDNEQ applies the NEQ predicate on the "subject_id" field.
+func SubjectIDNEQ(v string) predicate.Course {
+	return predicate.Course(sql.FieldNEQ(FieldSubjectID, v))
+}
+
+// SubjectIDIn applies the In predicate on the "subject_id" field.
+func SubjectIDIn(vs ...string) predicate.Course {
+	return predicate.Course(sql.FieldIn(FieldSubjectID, vs...))
+}
+
+// SubjectIDNotIn applies the NotIn predicate on the "subject_id" field.
+func SubjectIDNotIn(vs ...string) predicate.Course {
+	return predicate.Course(sql.FieldNotIn(FieldSubjectID, vs...))
+}
+
+// SubjectIDGT applies the GT predicate on the "subject_id" field.
+func SubjectIDGT(v string) predicate.Course {
+	return predicate.Course(sql.FieldGT(FieldSubjectID, v))
+}
+
+// SubjectIDGTE applies the GTE predicate on the "subject_id" field.
+func SubjectIDGTE(v string) predicate.Course {
+	return predicate.Course(sql.FieldGTE(FieldSubjectID, v))
+}
+
+// SubjectIDLT applies the LT predicate on the "subject_id" field.
+func SubjectIDLT(v string) predicate.Course {
+	return predicate.Course(sql.FieldLT(FieldSubjectID, v))
+}
+
+// SubjectIDLTE applies the LTE predicate on the "subject_id" field.
+func SubjectIDLTE(v string) predicate.Course {
+	return predicate.Course(sql.FieldLTE(FieldSubjectID, v))
+}
+
+// SubjectIDContains applies the Contains predicate on the "subject_id" field.
+func SubjectIDContains(v string) predicate.Course {
+	return predicate.Course(sql.FieldContains(FieldSubjectID, v))
+}
+
+// SubjectIDHasPrefix applies the HasPrefix predicate on the "subject_id" field.
+func SubjectIDHasPrefix(v string) predicate.Course {
+	return predicate.Course(sql.FieldHasPrefix(FieldSubjectID, v))
+}
+
+// SubjectIDHasSuffix applies the HasSuffix predicate on the "subject_id" field.
+func SubjectIDHasSuffix(v string) predicate.Course {
+	return predicate.Course(sql.FieldHasSuffix(FieldSubjectID, v))
+}
+
+// SubjectIDEqualFold applies the EqualFold predicate on the "subject_id" field.
+func SubjectIDEqualFold(v string) predicate.Course {
+	return predicate.Course(sql.FieldEqualFold(FieldSubjectID, v))
+}
+
+// SubjectIDContainsFold applies the ContainsFold predicate on the "subject_id" field.
+func SubjectIDContainsFold(v string) predicate.Course {
+	return predicate.Course(sql.FieldContainsFold(FieldSubjectID, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Course {
 	return predicate.Course(sql.FieldEQ(FieldCreatedAt, v))
@@ -240,7 +380,7 @@ func HasSubject() predicate.Course {
 	return predicate.Course(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, SubjectTable, SubjectColumn),
+			sqlgraph.Edge(sqlgraph.M2O, false, SubjectTable, SubjectColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -263,7 +403,7 @@ func HasProfessor() predicate.Course {
 	return predicate.Course(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ProfessorTable, ProfessorColumn),
+			sqlgraph.Edge(sqlgraph.M2O, false, ProfessorTable, ProfessorColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

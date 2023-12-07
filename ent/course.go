@@ -23,16 +23,18 @@ type Course struct {
 	Year int `json:"year,omitempty"`
 	// Period holds the value of the "period" field.
 	Period int `json:"period,omitempty"`
+	// ProfessorID holds the value of the "professor_id" field.
+	ProfessorID string `json:"professor_id,omitempty"`
+	// SubjectID holds the value of the "subject_id" field.
+	SubjectID string `json:"subject_id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// LastModifiedAt holds the value of the "last_modified_at" field.
 	LastModifiedAt time.Time `json:"last_modified_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the CourseQuery when eager-loading is set.
-	Edges             CourseEdges `json:"edges"`
-	professor_courses *string
-	subject_courses   *int
-	selectValues      sql.SelectValues
+	Edges        CourseEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // CourseEdges holds the relations/edges for other nodes in the graph.
@@ -79,12 +81,10 @@ func (*Course) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case course.FieldID, course.FieldYear, course.FieldPeriod:
 			values[i] = new(sql.NullInt64)
+		case course.FieldProfessorID, course.FieldSubjectID:
+			values[i] = new(sql.NullString)
 		case course.FieldCreatedAt, course.FieldLastModifiedAt:
 			values[i] = new(sql.NullTime)
-		case course.ForeignKeys[0]: // professor_courses
-			values[i] = new(sql.NullString)
-		case course.ForeignKeys[1]: // subject_courses
-			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -118,6 +118,18 @@ func (c *Course) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				c.Period = int(value.Int64)
 			}
+		case course.FieldProfessorID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field professor_id", values[i])
+			} else if value.Valid {
+				c.ProfessorID = value.String
+			}
+		case course.FieldSubjectID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field subject_id", values[i])
+			} else if value.Valid {
+				c.SubjectID = value.String
+			}
 		case course.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -129,20 +141,6 @@ func (c *Course) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field last_modified_at", values[i])
 			} else if value.Valid {
 				c.LastModifiedAt = value.Time
-			}
-		case course.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field professor_courses", values[i])
-			} else if value.Valid {
-				c.professor_courses = new(string)
-				*c.professor_courses = value.String
-			}
-		case course.ForeignKeys[1]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field subject_courses", value)
-			} else if value.Valid {
-				c.subject_courses = new(int)
-				*c.subject_courses = int(value.Int64)
 			}
 		default:
 			c.selectValues.Set(columns[i], values[i])
@@ -195,6 +193,12 @@ func (c *Course) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("period=")
 	builder.WriteString(fmt.Sprintf("%v", c.Period))
+	builder.WriteString(", ")
+	builder.WriteString("professor_id=")
+	builder.WriteString(c.ProfessorID)
+	builder.WriteString(", ")
+	builder.WriteString("subject_id=")
+	builder.WriteString(c.SubjectID)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(c.CreatedAt.Format(time.ANSIC))

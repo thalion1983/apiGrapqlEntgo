@@ -21,12 +21,6 @@ type SubjectCreate struct {
 	hooks    []Hook
 }
 
-// SetCode sets the "code" field.
-func (sc *SubjectCreate) SetCode(s string) *SubjectCreate {
-	sc.mutation.SetCode(s)
-	return sc
-}
-
 // SetName sets the "name" field.
 func (sc *SubjectCreate) SetName(s string) *SubjectCreate {
 	sc.mutation.SetName(s)
@@ -78,6 +72,12 @@ func (sc *SubjectCreate) SetNillableLastModifiedAt(t *time.Time) *SubjectCreate 
 	if t != nil {
 		sc.SetLastModifiedAt(*t)
 	}
+	return sc
+}
+
+// SetID sets the "id" field.
+func (sc *SubjectCreate) SetID(s string) *SubjectCreate {
+	sc.mutation.SetID(s)
 	return sc
 }
 
@@ -147,9 +147,6 @@ func (sc *SubjectCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (sc *SubjectCreate) check() error {
-	if _, ok := sc.mutation.Code(); !ok {
-		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "Subject.code"`)}
-	}
 	if _, ok := sc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Subject.name"`)}
 	}
@@ -189,8 +186,13 @@ func (sc *SubjectCreate) sqlSave(ctx context.Context) (*Subject, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(string); ok {
+			_node.ID = id
+		} else {
+			return nil, fmt.Errorf("unexpected Subject.ID type: %T", _spec.ID.Value)
+		}
+	}
 	sc.mutation.id = &_node.ID
 	sc.mutation.done = true
 	return _node, nil
@@ -199,11 +201,11 @@ func (sc *SubjectCreate) sqlSave(ctx context.Context) (*Subject, error) {
 func (sc *SubjectCreate) createSpec() (*Subject, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Subject{config: sc.config}
-		_spec = sqlgraph.NewCreateSpec(subject.Table, sqlgraph.NewFieldSpec(subject.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(subject.Table, sqlgraph.NewFieldSpec(subject.FieldID, field.TypeString))
 	)
-	if value, ok := sc.mutation.Code(); ok {
-		_spec.SetField(subject.FieldCode, field.TypeString, value)
-		_node.Code = value
+	if id, ok := sc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
 	}
 	if value, ok := sc.mutation.Name(); ok {
 		_spec.SetField(subject.FieldName, field.TypeString, value)
@@ -228,7 +230,7 @@ func (sc *SubjectCreate) createSpec() (*Subject, *sqlgraph.CreateSpec) {
 	if nodes := sc.mutation.CoursesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
-			Inverse: false,
+			Inverse: true,
 			Table:   subject.CoursesTable,
 			Columns: []string{subject.CoursesColumn},
 			Bidi:    false,
@@ -289,10 +291,6 @@ func (scb *SubjectCreateBulk) Save(ctx context.Context) ([]*Subject, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

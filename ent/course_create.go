@@ -34,6 +34,18 @@ func (cc *CourseCreate) SetPeriod(i int) *CourseCreate {
 	return cc
 }
 
+// SetProfessorID sets the "professor_id" field.
+func (cc *CourseCreate) SetProfessorID(s string) *CourseCreate {
+	cc.mutation.SetProfessorID(s)
+	return cc
+}
+
+// SetSubjectID sets the "subject_id" field.
+func (cc *CourseCreate) SetSubjectID(s string) *CourseCreate {
+	cc.mutation.SetSubjectID(s)
+	return cc
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (cc *CourseCreate) SetCreatedAt(t time.Time) *CourseCreate {
 	cc.mutation.SetCreatedAt(t)
@@ -62,37 +74,9 @@ func (cc *CourseCreate) SetNillableLastModifiedAt(t *time.Time) *CourseCreate {
 	return cc
 }
 
-// SetSubjectID sets the "subject" edge to the Subject entity by ID.
-func (cc *CourseCreate) SetSubjectID(id int) *CourseCreate {
-	cc.mutation.SetSubjectID(id)
-	return cc
-}
-
-// SetNillableSubjectID sets the "subject" edge to the Subject entity by ID if the given value is not nil.
-func (cc *CourseCreate) SetNillableSubjectID(id *int) *CourseCreate {
-	if id != nil {
-		cc = cc.SetSubjectID(*id)
-	}
-	return cc
-}
-
 // SetSubject sets the "subject" edge to the Subject entity.
 func (cc *CourseCreate) SetSubject(s *Subject) *CourseCreate {
 	return cc.SetSubjectID(s.ID)
-}
-
-// SetProfessorID sets the "professor" edge to the Professor entity by ID.
-func (cc *CourseCreate) SetProfessorID(id string) *CourseCreate {
-	cc.mutation.SetProfessorID(id)
-	return cc
-}
-
-// SetNillableProfessorID sets the "professor" edge to the Professor entity by ID if the given value is not nil.
-func (cc *CourseCreate) SetNillableProfessorID(id *string) *CourseCreate {
-	if id != nil {
-		cc = cc.SetProfessorID(*id)
-	}
-	return cc
 }
 
 // SetProfessor sets the "professor" edge to the Professor entity.
@@ -153,11 +137,23 @@ func (cc *CourseCreate) check() error {
 	if _, ok := cc.mutation.Period(); !ok {
 		return &ValidationError{Name: "period", err: errors.New(`ent: missing required field "Course.period"`)}
 	}
+	if _, ok := cc.mutation.ProfessorID(); !ok {
+		return &ValidationError{Name: "professor_id", err: errors.New(`ent: missing required field "Course.professor_id"`)}
+	}
+	if _, ok := cc.mutation.SubjectID(); !ok {
+		return &ValidationError{Name: "subject_id", err: errors.New(`ent: missing required field "Course.subject_id"`)}
+	}
 	if _, ok := cc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Course.created_at"`)}
 	}
 	if _, ok := cc.mutation.LastModifiedAt(); !ok {
 		return &ValidationError{Name: "last_modified_at", err: errors.New(`ent: missing required field "Course.last_modified_at"`)}
+	}
+	if _, ok := cc.mutation.SubjectID(); !ok {
+		return &ValidationError{Name: "subject", err: errors.New(`ent: missing required edge "Course.subject"`)}
+	}
+	if _, ok := cc.mutation.ProfessorID(); !ok {
+		return &ValidationError{Name: "professor", err: errors.New(`ent: missing required edge "Course.professor"`)}
 	}
 	return nil
 }
@@ -204,24 +200,24 @@ func (cc *CourseCreate) createSpec() (*Course, *sqlgraph.CreateSpec) {
 	if nodes := cc.mutation.SubjectIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: true,
+			Inverse: false,
 			Table:   course.SubjectTable,
 			Columns: []string{course.SubjectColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(subject.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(subject.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.subject_courses = &nodes[0]
+		_node.SubjectID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := cc.mutation.ProfessorIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: true,
+			Inverse: false,
 			Table:   course.ProfessorTable,
 			Columns: []string{course.ProfessorColumn},
 			Bidi:    false,
@@ -232,7 +228,7 @@ func (cc *CourseCreate) createSpec() (*Course, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.professor_courses = &nodes[0]
+		_node.ProfessorID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
