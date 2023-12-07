@@ -17,7 +17,7 @@ type Resolver struct {
 
 var (
 	dateInputLayout  = "2006/01/02"
-	dateOutputLayout = "2006-01-02T15:04:05"
+	dateOutputLayout = "2006/01/02T15:04:05"
 )
 
 // marshalEntProfessor marshals an object Professor from ent into model.Professor

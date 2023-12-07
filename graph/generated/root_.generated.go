@@ -278,7 +278,7 @@ var sources = []*ast.Source{
 `, BuiltIn: false},
 	{Name: "../schema/query.graphql", Input: `type Query {
 	professors: [Professor!]!
-	professor(id: ID!): Professor!
+	professor(id: String!): Professor!
 }
 `, BuiltIn: false},
 	{Name: "../schema/types.graphql", Input: `input NewProfessor {

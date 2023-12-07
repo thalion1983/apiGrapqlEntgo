@@ -46,7 +46,7 @@ func (ec *executionContext) field_Query_professor_args(ctx context.Context, rawA
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}

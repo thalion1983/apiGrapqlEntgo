@@ -1,4 +1,4 @@
 type Query {
 	professors: [Professor!]!
-	professor(id: ID!): Professor!
+	professor(id: String!): Professor!
 }
