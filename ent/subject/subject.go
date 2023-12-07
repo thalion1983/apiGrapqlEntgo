@@ -30,11 +30,13 @@ const (
 	EdgeCourses = "courses"
 	// Table holds the table name of the subject in the database.
 	Table = "subjects"
-	// CoursesTable is the table that holds the courses relation/edge. The primary key declared below.
-	CoursesTable = "subject_courses"
+	// CoursesTable is the table that holds the courses relation/edge.
+	CoursesTable = "courses"
 	// CoursesInverseTable is the table name for the Course entity.
 	// It exists in this package in order to avoid circular dependency with the "course" package.
 	CoursesInverseTable = "courses"
+	// CoursesColumn is the table column denoting the courses relation/edge.
+	CoursesColumn = "subject_courses"
 )
 
 // Columns holds all SQL columns for subject fields.
@@ -47,12 +49,6 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldLastModifiedAt,
 }
-
-var (
-	// CoursesPrimaryKey and CoursesColumn2 are the table columns denoting the
-	// primary key for the courses relation (M2M).
-	CoursesPrimaryKey = []string{"subject_id", "course_id"}
-)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -134,6 +130,6 @@ func newCoursesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(CoursesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, CoursesTable, CoursesPrimaryKey...),
+		sqlgraph.Edge(sqlgraph.O2M, false, CoursesTable, CoursesColumn),
 	)
 }

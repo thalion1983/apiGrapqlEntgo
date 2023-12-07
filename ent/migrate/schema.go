@@ -16,6 +16,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "last_modified_at", Type: field.TypeTime},
 		{Name: "professor_courses", Type: field.TypeString, Nullable: true},
+		{Name: "subject_courses", Type: field.TypeInt, Nullable: true},
 	}
 	// CoursesTable holds the schema information for the "courses" table.
 	CoursesTable = &schema.Table{
@@ -27,6 +28,12 @@ var (
 				Symbol:     "courses_professors_courses",
 				Columns:    []*schema.Column{CoursesColumns[5]},
 				RefColumns: []*schema.Column{ProfessorsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "courses_subjects_courses",
+				Columns:    []*schema.Column{CoursesColumns[6]},
+				RefColumns: []*schema.Column{SubjectsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
@@ -76,42 +83,15 @@ var (
 			},
 		},
 	}
-	// SubjectCoursesColumns holds the columns for the "subject_courses" table.
-	SubjectCoursesColumns = []*schema.Column{
-		{Name: "subject_id", Type: field.TypeInt},
-		{Name: "course_id", Type: field.TypeInt},
-	}
-	// SubjectCoursesTable holds the schema information for the "subject_courses" table.
-	SubjectCoursesTable = &schema.Table{
-		Name:       "subject_courses",
-		Columns:    SubjectCoursesColumns,
-		PrimaryKey: []*schema.Column{SubjectCoursesColumns[0], SubjectCoursesColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "subject_courses_subject_id",
-				Columns:    []*schema.Column{SubjectCoursesColumns[0]},
-				RefColumns: []*schema.Column{SubjectsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "subject_courses_course_id",
-				Columns:    []*schema.Column{SubjectCoursesColumns[1]},
-				RefColumns: []*schema.Column{CoursesColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		CoursesTable,
 		ProfessorsTable,
 		SubjectsTable,
-		SubjectCoursesTable,
 	}
 )
 
 func init() {
 	CoursesTable.ForeignKeys[0].RefTable = ProfessorsTable
-	SubjectCoursesTable.ForeignKeys[0].RefTable = SubjectsTable
-	SubjectCoursesTable.ForeignKeys[1].RefTable = CoursesTable
+	CoursesTable.ForeignKeys[1].RefTable = SubjectsTable
 }

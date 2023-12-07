@@ -334,7 +334,7 @@ func (c *CourseClient) QuerySubject(co *Course) *SubjectQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(course.Table, course.FieldID, id),
 			sqlgraph.To(subject.Table, subject.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, course.SubjectTable, course.SubjectPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, course.SubjectTable, course.SubjectColumn),
 		)
 		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
 		return fromV, nil
@@ -648,7 +648,7 @@ func (c *SubjectClient) QueryCourses(s *Subject) *CourseQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(subject.Table, subject.FieldID, id),
 			sqlgraph.To(course.Table, course.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, subject.CoursesTable, subject.CoursesPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, false, subject.CoursesTable, subject.CoursesColumn),
 		)
 		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
 		return fromV, nil

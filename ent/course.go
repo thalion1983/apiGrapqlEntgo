@@ -5,6 +5,7 @@ package ent
 import (
 	"apiGrapqlEntgo/ent/course"
 	"apiGrapqlEntgo/ent/professor"
+	"apiGrapqlEntgo/ent/subject"
 	"fmt"
 	"strings"
 	"time"
@@ -30,13 +31,14 @@ type Course struct {
 	// The values are being populated by the CourseQuery when eager-loading is set.
 	Edges             CourseEdges `json:"edges"`
 	professor_courses *string
+	subject_courses   *int
 	selectValues      sql.SelectValues
 }
 
 // CourseEdges holds the relations/edges for other nodes in the graph.
 type CourseEdges struct {
 	// Subject holds the value of the subject edge.
-	Subject []*Subject `json:"subject,omitempty"`
+	Subject *Subject `json:"subject,omitempty"`
 	// Professor holds the value of the professor edge.
 	Professor *Professor `json:"professor,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -45,9 +47,13 @@ type CourseEdges struct {
 }
 
 // SubjectOrErr returns the Subject value or an error if the edge
-// was not loaded in eager-loading.
-func (e CourseEdges) SubjectOrErr() ([]*Subject, error) {
+// was not loaded in eager-loading, or loaded but was not found.
+func (e CourseEdges) SubjectOrErr() (*Subject, error) {
 	if e.loadedTypes[0] {
+		if e.Subject == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: subject.Label}
+		}
 		return e.Subject, nil
 	}
 	return nil, &NotLoadedError{edge: "subject"}
@@ -77,6 +83,8 @@ func (*Course) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case course.ForeignKeys[0]: // professor_courses
 			values[i] = new(sql.NullString)
+		case course.ForeignKeys[1]: // subject_courses
+			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -128,6 +136,13 @@ func (c *Course) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				c.professor_courses = new(string)
 				*c.professor_courses = value.String
+			}
+		case course.ForeignKeys[1]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field subject_courses", value)
+			} else if value.Valid {
+				c.subject_courses = new(int)
+				*c.subject_courses = int(value.Int64)
 			}
 		default:
 			c.selectValues.Set(columns[i], values[i])

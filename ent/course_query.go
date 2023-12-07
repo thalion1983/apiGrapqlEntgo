@@ -8,7 +8,6 @@ import (
 	"apiGrapqlEntgo/ent/professor"
 	"apiGrapqlEntgo/ent/subject"
 	"context"
-	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -77,7 +76,7 @@ func (cq *CourseQuery) QuerySubject() *SubjectQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(course.Table, course.FieldID, selector),
 			sqlgraph.To(subject.Table, subject.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, course.SubjectTable, course.SubjectPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, course.SubjectTable, course.SubjectColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
 		return fromU, nil
@@ -413,7 +412,7 @@ func (cq *CourseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cours
 			cq.withProfessor != nil,
 		}
 	)
-	if cq.withProfessor != nil {
+	if cq.withSubject != nil || cq.withProfessor != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -438,9 +437,8 @@ func (cq *CourseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cours
 		return nodes, nil
 	}
 	if query := cq.withSubject; query != nil {
-		if err := cq.loadSubject(ctx, query, nodes,
-			func(n *Course) { n.Edges.Subject = []*Subject{} },
-			func(n *Course, e *Subject) { n.Edges.Subject = append(n.Edges.Subject, e) }); err != nil {
+		if err := cq.loadSubject(ctx, query, nodes, nil,
+			func(n *Course, e *Subject) { n.Edges.Subject = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -454,62 +452,33 @@ func (cq *CourseQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cours
 }
 
 func (cq *CourseQuery) loadSubject(ctx context.Context, query *SubjectQuery, nodes []*Course, init func(*Course), assign func(*Course, *Subject)) error {
-	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*Course)
-	nids := make(map[int]map[*Course]struct{})
-	for i, node := range nodes {
-		edgeIDs[i] = node.ID
-		byID[node.ID] = node
-		if init != nil {
-			init(node)
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*Course)
+	for i := range nodes {
+		if nodes[i].subject_courses == nil {
+			continue
 		}
+		fk := *nodes[i].subject_courses
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(course.SubjectTable)
-		s.Join(joinT).On(s.C(subject.FieldID), joinT.C(course.SubjectPrimaryKey[0]))
-		s.Where(sql.InValues(joinT.C(course.SubjectPrimaryKey[1]), edgeIDs...))
-		columns := s.SelectedColumns()
-		s.Select(joinT.C(course.SubjectPrimaryKey[1]))
-		s.AppendSelect(columns...)
-		s.SetDistinct(false)
-	})
-	if err := query.prepareQuery(ctx); err != nil {
-		return err
+	if len(ids) == 0 {
+		return nil
 	}
-	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
-		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
-			assign := spec.Assign
-			values := spec.ScanValues
-			spec.ScanValues = func(columns []string) ([]any, error) {
-				values, err := values(columns[1:])
-				if err != nil {
-					return nil, err
-				}
-				return append([]any{new(sql.NullInt64)}, values...), nil
-			}
-			spec.Assign = func(columns []string, values []any) error {
-				outValue := int(values[0].(*sql.NullInt64).Int64)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
-				if nids[inValue] == nil {
-					nids[inValue] = map[*Course]struct{}{byID[outValue]: {}}
-					return assign(columns[1:], values[1:])
-				}
-				nids[inValue][byID[outValue]] = struct{}{}
-				return nil
-			}
-		})
-	})
-	neighbors, err := withInterceptors[[]*Subject](ctx, query, qr, query.inters)
+	query.Where(subject.IDIn(ids...))
+	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nids[n.ID]
+		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected "subject" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "subject_courses" returned %v`, n.ID)
 		}
-		for kn := range nodes {
-			assign(kn, n)
+		for i := range nodes {
+			assign(nodes[i], n)
 		}
 	}
 	return nil

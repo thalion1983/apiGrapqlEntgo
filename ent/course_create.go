@@ -62,19 +62,23 @@ func (cc *CourseCreate) SetNillableLastModifiedAt(t *time.Time) *CourseCreate {
 	return cc
 }
 
-// AddSubjectIDs adds the "subject" edge to the Subject entity by IDs.
-func (cc *CourseCreate) AddSubjectIDs(ids ...int) *CourseCreate {
-	cc.mutation.AddSubjectIDs(ids...)
+// SetSubjectID sets the "subject" edge to the Subject entity by ID.
+func (cc *CourseCreate) SetSubjectID(id int) *CourseCreate {
+	cc.mutation.SetSubjectID(id)
 	return cc
 }
 
-// AddSubject adds the "subject" edges to the Subject entity.
-func (cc *CourseCreate) AddSubject(s ...*Subject) *CourseCreate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// SetNillableSubjectID sets the "subject" edge to the Subject entity by ID if the given value is not nil.
+func (cc *CourseCreate) SetNillableSubjectID(id *int) *CourseCreate {
+	if id != nil {
+		cc = cc.SetSubjectID(*id)
 	}
-	return cc.AddSubjectIDs(ids...)
+	return cc
+}
+
+// SetSubject sets the "subject" edge to the Subject entity.
+func (cc *CourseCreate) SetSubject(s *Subject) *CourseCreate {
+	return cc.SetSubjectID(s.ID)
 }
 
 // SetProfessorID sets the "professor" edge to the Professor entity by ID.
@@ -199,10 +203,10 @@ func (cc *CourseCreate) createSpec() (*Course, *sqlgraph.CreateSpec) {
 	}
 	if nodes := cc.mutation.SubjectIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   course.SubjectTable,
-			Columns: course.SubjectPrimaryKey,
+			Columns: []string{course.SubjectColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(subject.FieldID, field.TypeInt),
@@ -211,6 +215,7 @@ func (cc *CourseCreate) createSpec() (*Course, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.subject_courses = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := cc.mutation.ProfessorIDs(); len(nodes) > 0 {

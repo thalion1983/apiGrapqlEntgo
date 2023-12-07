@@ -78,19 +78,23 @@ func (cu *CourseUpdate) SetLastModifiedAt(t time.Time) *CourseUpdate {
 	return cu
 }
 
-// AddSubjectIDs adds the "subject" edge to the Subject entity by IDs.
-func (cu *CourseUpdate) AddSubjectIDs(ids ...int) *CourseUpdate {
-	cu.mutation.AddSubjectIDs(ids...)
+// SetSubjectID sets the "subject" edge to the Subject entity by ID.
+func (cu *CourseUpdate) SetSubjectID(id int) *CourseUpdate {
+	cu.mutation.SetSubjectID(id)
 	return cu
 }
 
-// AddSubject adds the "subject" edges to the Subject entity.
-func (cu *CourseUpdate) AddSubject(s ...*Subject) *CourseUpdate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// SetNillableSubjectID sets the "subject" edge to the Subject entity by ID if the given value is not nil.
+func (cu *CourseUpdate) SetNillableSubjectID(id *int) *CourseUpdate {
+	if id != nil {
+		cu = cu.SetSubjectID(*id)
 	}
-	return cu.AddSubjectIDs(ids...)
+	return cu
+}
+
+// SetSubject sets the "subject" edge to the Subject entity.
+func (cu *CourseUpdate) SetSubject(s *Subject) *CourseUpdate {
+	return cu.SetSubjectID(s.ID)
 }
 
 // SetProfessorID sets the "professor" edge to the Professor entity by ID.
@@ -117,25 +121,10 @@ func (cu *CourseUpdate) Mutation() *CourseMutation {
 	return cu.mutation
 }
 
-// ClearSubject clears all "subject" edges to the Subject entity.
+// ClearSubject clears the "subject" edge to the Subject entity.
 func (cu *CourseUpdate) ClearSubject() *CourseUpdate {
 	cu.mutation.ClearSubject()
 	return cu
-}
-
-// RemoveSubjectIDs removes the "subject" edge to Subject entities by IDs.
-func (cu *CourseUpdate) RemoveSubjectIDs(ids ...int) *CourseUpdate {
-	cu.mutation.RemoveSubjectIDs(ids...)
-	return cu
-}
-
-// RemoveSubject removes "subject" edges to Subject entities.
-func (cu *CourseUpdate) RemoveSubject(s ...*Subject) *CourseUpdate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return cu.RemoveSubjectIDs(ids...)
 }
 
 // ClearProfessor clears the "professor" edge to the Professor entity.
@@ -206,39 +195,23 @@ func (cu *CourseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if cu.mutation.SubjectCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   course.SubjectTable,
-			Columns: course.SubjectPrimaryKey,
+			Columns: []string{course.SubjectColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(subject.FieldID, field.TypeInt),
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := cu.mutation.RemovedSubjectIDs(); len(nodes) > 0 && !cu.mutation.SubjectCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   course.SubjectTable,
-			Columns: course.SubjectPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(subject.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := cu.mutation.SubjectIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   course.SubjectTable,
-			Columns: course.SubjectPrimaryKey,
+			Columns: []string{course.SubjectColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(subject.FieldID, field.TypeInt),
@@ -346,19 +319,23 @@ func (cuo *CourseUpdateOne) SetLastModifiedAt(t time.Time) *CourseUpdateOne {
 	return cuo
 }
 
-// AddSubjectIDs adds the "subject" edge to the Subject entity by IDs.
-func (cuo *CourseUpdateOne) AddSubjectIDs(ids ...int) *CourseUpdateOne {
-	cuo.mutation.AddSubjectIDs(ids...)
+// SetSubjectID sets the "subject" edge to the Subject entity by ID.
+func (cuo *CourseUpdateOne) SetSubjectID(id int) *CourseUpdateOne {
+	cuo.mutation.SetSubjectID(id)
 	return cuo
 }
 
-// AddSubject adds the "subject" edges to the Subject entity.
-func (cuo *CourseUpdateOne) AddSubject(s ...*Subject) *CourseUpdateOne {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// SetNillableSubjectID sets the "subject" edge to the Subject entity by ID if the given value is not nil.
+func (cuo *CourseUpdateOne) SetNillableSubjectID(id *int) *CourseUpdateOne {
+	if id != nil {
+		cuo = cuo.SetSubjectID(*id)
 	}
-	return cuo.AddSubjectIDs(ids...)
+	return cuo
+}
+
+// SetSubject sets the "subject" edge to the Subject entity.
+func (cuo *CourseUpdateOne) SetSubject(s *Subject) *CourseUpdateOne {
+	return cuo.SetSubjectID(s.ID)
 }
 
 // SetProfessorID sets the "professor" edge to the Professor entity by ID.
@@ -385,25 +362,10 @@ func (cuo *CourseUpdateOne) Mutation() *CourseMutation {
 	return cuo.mutation
 }
 
-// ClearSubject clears all "subject" edges to the Subject entity.
+// ClearSubject clears the "subject" edge to the Subject entity.
 func (cuo *CourseUpdateOne) ClearSubject() *CourseUpdateOne {
 	cuo.mutation.ClearSubject()
 	return cuo
-}
-
-// RemoveSubjectIDs removes the "subject" edge to Subject entities by IDs.
-func (cuo *CourseUpdateOne) RemoveSubjectIDs(ids ...int) *CourseUpdateOne {
-	cuo.mutation.RemoveSubjectIDs(ids...)
-	return cuo
-}
-
-// RemoveSubject removes "subject" edges to Subject entities.
-func (cuo *CourseUpdateOne) RemoveSubject(s ...*Subject) *CourseUpdateOne {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return cuo.RemoveSubjectIDs(ids...)
 }
 
 // ClearProfessor clears the "professor" edge to the Professor entity.
@@ -504,39 +466,23 @@ func (cuo *CourseUpdateOne) sqlSave(ctx context.Context) (_node *Course, err err
 	}
 	if cuo.mutation.SubjectCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   course.SubjectTable,
-			Columns: course.SubjectPrimaryKey,
+			Columns: []string{course.SubjectColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(subject.FieldID, field.TypeInt),
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := cuo.mutation.RemovedSubjectIDs(); len(nodes) > 0 && !cuo.mutation.SubjectCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   course.SubjectTable,
-			Columns: course.SubjectPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(subject.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := cuo.mutation.SubjectIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   course.SubjectTable,
-			Columns: course.SubjectPrimaryKey,
+			Columns: []string{course.SubjectColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(subject.FieldID, field.TypeInt),

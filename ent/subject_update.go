@@ -212,10 +212,10 @@ func (su *SubjectUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if su.mutation.CoursesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   subject.CoursesTable,
-			Columns: subject.CoursesPrimaryKey,
+			Columns: []string{subject.CoursesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeInt),
@@ -225,10 +225,10 @@ func (su *SubjectUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := su.mutation.RemovedCoursesIDs(); len(nodes) > 0 && !su.mutation.CoursesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   subject.CoursesTable,
-			Columns: subject.CoursesPrimaryKey,
+			Columns: []string{subject.CoursesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeInt),
@@ -241,10 +241,10 @@ func (su *SubjectUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := su.mutation.CoursesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   subject.CoursesTable,
-			Columns: subject.CoursesPrimaryKey,
+			Columns: []string{subject.CoursesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeInt),
@@ -488,10 +488,10 @@ func (suo *SubjectUpdateOne) sqlSave(ctx context.Context) (_node *Subject, err e
 	}
 	if suo.mutation.CoursesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   subject.CoursesTable,
-			Columns: subject.CoursesPrimaryKey,
+			Columns: []string{subject.CoursesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeInt),
@@ -501,10 +501,10 @@ func (suo *SubjectUpdateOne) sqlSave(ctx context.Context) (_node *Subject, err e
 	}
 	if nodes := suo.mutation.RemovedCoursesIDs(); len(nodes) > 0 && !suo.mutation.CoursesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   subject.CoursesTable,
-			Columns: subject.CoursesPrimaryKey,
+			Columns: []string{subject.CoursesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeInt),
@@ -517,10 +517,10 @@ func (suo *SubjectUpdateOne) sqlSave(ctx context.Context) (_node *Subject, err e
 	}
 	if nodes := suo.mutation.CoursesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   subject.CoursesTable,
-			Columns: subject.CoursesPrimaryKey,
+			Columns: []string{subject.CoursesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeInt),

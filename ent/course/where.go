@@ -240,7 +240,7 @@ func HasSubject() predicate.Course {
 	return predicate.Course(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, SubjectTable, SubjectPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, SubjectTable, SubjectColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
