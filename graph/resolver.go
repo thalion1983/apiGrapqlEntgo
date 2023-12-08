@@ -2,7 +2,12 @@ package graph
 
 import (
 	"apiGrapqlEntgo/ent"
+	"apiGrapqlEntgo/ent/course"
+	"apiGrapqlEntgo/ent/professor"
+	"apiGrapqlEntgo/ent/subject"
 	"apiGrapqlEntgo/graph/model"
+	"context"
+	"fmt"
 )
 
 // This file will not be regenerated automatically.
@@ -53,4 +58,56 @@ func marshalEntCourse(cour *ent.Course) *model.Course {
 		CreatedAt:      cour.CreatedAt.Format(dateOutputLayout),
 		LastModifiedAt: cour.LastModifiedAt.Format(dateOutputLayout),
 	}
+}
+
+// queryProfessor queries a Professor by ID
+func queryProfessor(cli *ent.Client, ctx context.Context, id string) (*ent.Professor, error) {
+	prof, err := cli.Professor.Query().
+		Where(professor.ID(id)).
+		Only(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("getting professor by ID: %w", err)
+	}
+
+	return prof, nil
+}
+
+// querySubject queries a Subject by ID
+func querySubject(cli *ent.Client, ctx context.Context, id string) (*ent.Subject, error) {
+	subj, err := cli.Subject.Query().
+		Where(subject.ID(id)).
+		Only(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("getting subject by ID: %w", err)
+	}
+
+	return subj, nil
+}
+
+// queryCourseByID queries a Course by ID
+func queryCourseByID(cli *ent.Client, ctx context.Context, id int) (*ent.Course, error) {
+	cour, err := cli.Course.Query().
+		Where(course.ID(id)).
+		Only(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("getting course by ID: %w", err)
+	}
+
+	return cour, nil
+}
+
+// queryCourse queries a Course by its data: Year, Period and SubjectID
+func queryCourse(cli *ent.Client, ctx context.Context, year int, period int, subjectID string) (*ent.Course, error) {
+	cour, err := cli.Course.Query().
+		Where(
+			course.Year(year),
+			course.Period(period),
+			course.SubjectID(subjectID),
+		).
+		Only(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("getting course for subject_id %s in period %d-%d: %w", subjectID, year, period, err)
+	}
+
+	return cour, nil
 }
