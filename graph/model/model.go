@@ -2,6 +2,23 @@
 
 package model
 
+type Course struct {
+	ID             int    `json:"id"`
+	Year           int    `json:"year"`
+	Period         int    `json:"period"`
+	ProfessorID    string `json:"professor_id"`
+	SubjectID      string `json:"subject_id"`
+	CreatedAt      string `json:"created_at"`
+	LastModifiedAt string `json:"last_modified_at"`
+}
+
+type NewCourse struct {
+	Year        int    `json:"year"`
+	Period      int    `json:"period"`
+	ProfessorID string `json:"professor_id"`
+	SubjectID   string `json:"subject_id"`
+}
+
 type NewProfessor struct {
 	ID        string `json:"id"`
 	Name      string `json:"name"`

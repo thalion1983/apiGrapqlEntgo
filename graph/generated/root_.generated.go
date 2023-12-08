@@ -41,13 +41,28 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	Course struct {
+		CreatedAt      func(childComplexity int) int
+		ID             func(childComplexity int) int
+		LastModifiedAt func(childComplexity int) int
+		Period         func(childComplexity int) int
+		ProfessorID    func(childComplexity int) int
+		SubjectID      func(childComplexity int) int
+		Year           func(childComplexity int) int
+	}
+
 	Mutation struct {
-		CreateProfessor func(childComplexity int, input model.NewProfessor) int
-		CreateSubject   func(childComplexity int, input model.NewSubject) int
-		RemoveProfessor func(childComplexity int, id string) int
-		RemoveSubject   func(childComplexity int, id string) int
-		UpdateProfessor func(childComplexity int, id string, input model.NewProfessor) int
-		UpdateSubject   func(childComplexity int, id string, input model.NewSubject) int
+		CreateCourse     func(childComplexity int, input model.NewCourse) int
+		CreateProfessor  func(childComplexity int, input model.NewProfessor) int
+		CreateSubject    func(childComplexity int, input model.NewSubject) int
+		RemoveCourse     func(childComplexity int, year int, period int, subjectID string) int
+		RemoveCourseByID func(childComplexity int, id int) int
+		RemoveProfessor  func(childComplexity int, id string) int
+		RemoveSubject    func(childComplexity int, id string) int
+		UpdateCourse     func(childComplexity int, year int, period int, subjectID string, input model.NewCourse) int
+		UpdateCourseByID func(childComplexity int, id int, input model.NewCourse) int
+		UpdateProfessor  func(childComplexity int, id string, input model.NewProfessor) int
+		UpdateSubject    func(childComplexity int, id string, input model.NewSubject) int
 	}
 
 	Professor struct {
@@ -60,6 +75,9 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		Course     func(childComplexity int, year int, period int, subjectID string) int
+		CourseByID func(childComplexity int, id int) int
+		Courses    func(childComplexity int) int
 		Professor  func(childComplexity int, id string) int
 		Professors func(childComplexity int) int
 		Subject    func(childComplexity int, id string) int
@@ -95,6 +113,67 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
+	case "Course.created_at":
+		if e.complexity.Course.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Course.CreatedAt(childComplexity), true
+
+	case "Course.id":
+		if e.complexity.Course.ID == nil {
+			break
+		}
+
+		return e.complexity.Course.ID(childComplexity), true
+
+	case "Course.last_modified_at":
+		if e.complexity.Course.LastModifiedAt == nil {
+			break
+		}
+
+		return e.complexity.Course.LastModifiedAt(childComplexity), true
+
+	case "Course.period":
+		if e.complexity.Course.Period == nil {
+			break
+		}
+
+		return e.complexity.Course.Period(childComplexity), true
+
+	case "Course.professor_id":
+		if e.complexity.Course.ProfessorID == nil {
+			break
+		}
+
+		return e.complexity.Course.ProfessorID(childComplexity), true
+
+	case "Course.subject_id":
+		if e.complexity.Course.SubjectID == nil {
+			break
+		}
+
+		return e.complexity.Course.SubjectID(childComplexity), true
+
+	case "Course.year":
+		if e.complexity.Course.Year == nil {
+			break
+		}
+
+		return e.complexity.Course.Year(childComplexity), true
+
+	case "Mutation.createCourse":
+		if e.complexity.Mutation.CreateCourse == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createCourse_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateCourse(childComplexity, args["input"].(model.NewCourse)), true
+
 	case "Mutation.createProfessor":
 		if e.complexity.Mutation.CreateProfessor == nil {
 			break
@@ -119,6 +198,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateSubject(childComplexity, args["input"].(model.NewSubject)), true
 
+	case "Mutation.removeCourse":
+		if e.complexity.Mutation.RemoveCourse == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_removeCourse_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RemoveCourse(childComplexity, args["year"].(int), args["period"].(int), args["subject_id"].(string)), true
+
+	case "Mutation.removeCourseByID":
+		if e.complexity.Mutation.RemoveCourseByID == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_removeCourseByID_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RemoveCourseByID(childComplexity, args["id"].(int)), true
+
 	case "Mutation.removeProfessor":
 		if e.complexity.Mutation.RemoveProfessor == nil {
 			break
@@ -142,6 +245,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.RemoveSubject(childComplexity, args["id"].(string)), true
+
+	case "Mutation.updateCourse":
+		if e.complexity.Mutation.UpdateCourse == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateCourse_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateCourse(childComplexity, args["year"].(int), args["period"].(int), args["subject_id"].(string), args["input"].(model.NewCourse)), true
+
+	case "Mutation.updateCourseByID":
+		if e.complexity.Mutation.UpdateCourseByID == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateCourseByID_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateCourseByID(childComplexity, args["id"].(int), args["input"].(model.NewCourse)), true
 
 	case "Mutation.updateProfessor":
 		if e.complexity.Mutation.UpdateProfessor == nil {
@@ -208,6 +335,37 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Professor.Name(childComplexity), true
+
+	case "Query.course":
+		if e.complexity.Query.Course == nil {
+			break
+		}
+
+		args, err := ec.field_Query_course_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Course(childComplexity, args["year"].(int), args["period"].(int), args["subject_id"].(string)), true
+
+	case "Query.courseByID":
+		if e.complexity.Query.CourseByID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_courseByID_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.CourseByID(childComplexity, args["id"].(int)), true
+
+	case "Query.courses":
+		if e.complexity.Query.Courses == nil {
+			break
+		}
+
+		return e.complexity.Query.Courses(childComplexity), true
 
 	case "Query.professor":
 		if e.complexity.Query.Professor == nil {
@@ -297,6 +455,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputNewCourse,
 		ec.unmarshalInputNewProfessor,
 		ec.unmarshalInputNewSubject,
 	)
@@ -403,6 +562,11 @@ var sources = []*ast.Source{
 	createSubject(input: NewSubject!): Subject!
 	removeSubject(id: String!): Subject!
 	updateSubject(id: String!, input:NewSubject!): Subject!
+	createCourse(input: NewCourse!): Course!
+	removeCourseByID(id: Int!): Course!
+	removeCourse(year: Int!, period: Int!, subject_id: String!): Course!
+	updateCourseByID(id: Int!, input:NewCourse!): Course!
+	updateCourse(year: Int!, period: Int!, subject_id: String!, input:NewCourse!): Course!
 }
 `, BuiltIn: false},
 	{Name: "../schema/query.graphql", Input: `type Query {
@@ -410,6 +574,9 @@ var sources = []*ast.Source{
 	professor(id: String!): Professor!
 	subjects: [Subject!]!
 	subject(id: String!): Subject!
+	courses: [Course!]!
+	courseByID(id: Int!): Course!
+	course(year: Int!, period: Int!, subject_id: String!): Course!
 }
 `, BuiltIn: false},
 	{Name: "../schema/types.graphql", Input: `input NewProfessor {
@@ -440,6 +607,23 @@ type Subject {
 	name: String!
 	description: String!
 	active: Boolean!
+	created_at: String!
+	last_modified_at: String!
+}
+
+input NewCourse {
+	year: Int!
+	period: Int!
+	professor_id: String!
+	subject_id: String!
+}
+
+type Course {
+	id: Int!
+	year: Int!
+	period: Int!
+	professor_id: String!
+	subject_id: String!
 	created_at: String!
 	last_modified_at: String!
 }

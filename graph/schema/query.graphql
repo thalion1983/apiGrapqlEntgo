@@ -3,4 +3,7 @@ type Query {
 	professor(id: String!): Professor!
 	subjects: [Subject!]!
 	subject(id: String!): Subject!
+	courses: [Course!]!
+	courseByID(id: Int!): Course!
+	course(year: Int!, period: Int!, subject_id: String!): Course!
 }

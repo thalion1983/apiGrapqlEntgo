@@ -29,3 +29,20 @@ type Subject {
 	created_at: String!
 	last_modified_at: String!
 }
+
+input NewCourse {
+	year: Int!
+	period: Int!
+	professor_id: String!
+	subject_id: String!
+}
+
+type Course {
+	id: Int!
+	year: Int!
+	period: Int!
+	professor_id: String!
+	subject_id: String!
+	created_at: String!
+	last_modified_at: String!
+}

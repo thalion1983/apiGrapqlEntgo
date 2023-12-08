@@ -5,4 +5,9 @@ type Mutation {
 	createSubject(input: NewSubject!): Subject!
 	removeSubject(id: String!): Subject!
 	updateSubject(id: String!, input:NewSubject!): Subject!
+	createCourse(input: NewCourse!): Course!
+	removeCourseByID(id: Int!): Course!
+	removeCourse(year: Int!, period: Int!, subject_id: String!): Course!
+	updateCourseByID(id: Int!, input:NewCourse!): Course!
+	updateCourse(year: Int!, period: Int!, subject_id: String!, input:NewCourse!): Course!
 }
