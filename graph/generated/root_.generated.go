@@ -44,6 +44,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		CreateProfessor func(childComplexity int, input model.NewProfessor) int
 		RemoveProfessor func(childComplexity int, id string) int
+		UpdateProfessor func(childComplexity int, id string, input model.NewProfessor) int
 	}
 
 	Professor struct {
@@ -103,6 +104,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.RemoveProfessor(childComplexity, args["id"].(string)), true
+
+	case "Mutation.updateProfessor":
+		if e.complexity.Mutation.UpdateProfessor == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateProfessor_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateProfessor(childComplexity, args["id"].(string), args["input"].(model.NewProfessor)), true
 
 	case "Professor.birth_date":
 		if e.complexity.Professor.BirthDate == nil {
@@ -274,6 +287,7 @@ var sources = []*ast.Source{
 	{Name: "../schema/mutation.graphql", Input: `type Mutation {
 	createProfessor(input: NewProfessor!): Professor!
 	removeProfessor(id: String!): Professor!
+	updateProfessor(id: String!, input:NewProfessor!): Professor!
 }
 `, BuiltIn: false},
 	{Name: "../schema/query.graphql", Input: `type Query {

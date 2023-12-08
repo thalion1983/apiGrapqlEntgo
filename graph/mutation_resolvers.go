@@ -45,9 +45,38 @@ func (r *mutationResolver) RemoveProfessor(ctx context.Context, id string) (*mod
 
 	res := marshalEntProfessor(prof)
 	if err = r.Cli.Professor.DeleteOneID(id).Exec(r.Ctx); err != nil {
-		return nil, fmt.Errorf("removing professor: %w", err)
+		return nil, fmt.Errorf("removing professor %s: %w", id, err)
 	}
 
+	return res, nil
+}
+
+// UpdateProfessor is the resolver for the updateProfessor field.
+func (r *mutationResolver) UpdateProfessor(ctx context.Context, id string, input model.NewProfessor) (*model.Professor, error) {
+	prof, err := r.Cli.Professor.Query().
+		Where(professor.ID(id)).
+		Only(r.Ctx)
+	if err != nil {
+		return nil, fmt.Errorf("getting professor by ID: %w", err)
+	}
+
+	birthDate, err := time.Parse(dateInputLayout, input.BirthDate)
+	if err != nil {
+		return nil, fmt.Errorf("parsing birthdate: %w", err)
+	}
+
+	prof, err = prof.Update().
+		// SetID(input.ID). // Is it possible?
+		SetName(input.Name).
+		SetLastName(input.LastName).
+		SetBirthDate(birthDate).
+		Save(r.Ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("updating professor %s: %w", id, err)
+	}
+
+	res := marshalEntProfessor(prof)
 	return res, nil
 }
 
