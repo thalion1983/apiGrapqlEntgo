@@ -9,16 +9,16 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/playground"
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 var (
 	pgDriver = "pgx" //This is the name of the postgres driver registered by jackc/pgx
-	port = "8080"
+	port     = "8080"
 )
 
 // getClient creates a new *ent.Client driver
