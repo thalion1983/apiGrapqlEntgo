@@ -6,6 +6,7 @@ package graph
 
 import (
 	"apiGrapqlEntgo/ent/professor"
+	"apiGrapqlEntgo/ent/subject"
 	"apiGrapqlEntgo/graph/generated"
 	"apiGrapqlEntgo/graph/model"
 	"context"
@@ -76,8 +77,62 @@ func (r *mutationResolver) UpdateProfessor(ctx context.Context, id string, input
 		return nil, fmt.Errorf("updating professor %s: %w", id, err)
 	}
 
-	res := marshalEntProfessor(prof)
+	return marshalEntProfessor(prof), nil
+}
+
+// CreateSubject is the resolver for the createSubject field.
+func (r *mutationResolver) CreateSubject(ctx context.Context, input model.NewSubject) (*model.Subject, error) {
+	subj, err := r.Cli.Subject.Create().
+		SetID(input.ID).
+		SetName(input.Name).
+		SetDescription(input.Description).
+		SetActive(input.Active).
+		Save(r.Ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("creating new subject: %w", err)
+	}
+
+	return marshalEntSubject(subj), nil
+}
+
+// RemoveSubject is the resolver for the removeSubject field.
+func (r *mutationResolver) RemoveSubject(ctx context.Context, id string) (*model.Subject, error) {
+	subj, err := r.Cli.Subject.Query().
+		Where(subject.ID(id)).
+		Only(r.Ctx)
+	if err != nil {
+		return nil, fmt.Errorf("getting subject by ID: %w", err)
+	}
+
+	res := marshalEntSubject(subj)
+	if err = r.Cli.Subject.DeleteOneID(id).Exec(r.Ctx); err != nil {
+		return nil, fmt.Errorf("removing subject %s: %w", id, err)
+	}
+
 	return res, nil
+}
+
+// UpdateSubject is the resolver for the updateSubject field.
+func (r *mutationResolver) UpdateSubject(ctx context.Context, id string, input model.NewSubject) (*model.Subject, error) {
+	subj, err := r.Cli.Subject.Query().
+		Where(subject.ID(id)).
+		Only(r.Ctx)
+	if err != nil {
+		return nil, fmt.Errorf("getting subject by ID: %w", err)
+	}
+
+	subj, err = subj.Update().
+		SetName(input.Name).
+		SetDescription(input.Description).
+		SetActive(input.Active).
+		Save(r.Ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("updating subject %s: %w", id, err)
+	}
+
+	return marshalEntSubject(subj), nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

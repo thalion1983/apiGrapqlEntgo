@@ -13,3 +13,19 @@ type Professor {
 	created_at: String!
 	last_modified_at: String!
 }
+
+input NewSubject {
+	id: String!
+	name: String!
+	description: String!
+	active: Boolean!
+}
+
+type Subject {
+	id: String!
+	name: String!
+	description: String!
+	active: Boolean!
+	created_at: String!
+	last_modified_at: String!
+}

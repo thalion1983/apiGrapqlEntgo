@@ -31,3 +31,15 @@ func marshalEntProfessor(prof *ent.Professor) *model.Professor {
 		LastModifiedAt: prof.LastModifiedAt.Format(dateOutputLayout),
 	}
 }
+
+// marshalEntSubject marshals an object Subject from ent into model.Subject
+func marshalEntSubject(subj *ent.Subject) *model.Subject {
+	return &model.Subject{
+		ID:             subj.ID,
+		Name:           subj.Name,
+		Description:    subj.Description,
+		Active:         subj.Active,
+		CreatedAt:      subj.CreatedAt.Format(dateOutputLayout),
+		LastModifiedAt: subj.LastModifiedAt.Format(dateOutputLayout),
+	}
+}

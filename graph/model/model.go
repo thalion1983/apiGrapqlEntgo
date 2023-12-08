@@ -9,11 +9,27 @@ type NewProfessor struct {
 	BirthDate string `json:"birth_date"`
 }
 
+type NewSubject struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Active      bool   `json:"active"`
+}
+
 type Professor struct {
 	ID             string `json:"id"`
 	Name           string `json:"name"`
 	LastName       string `json:"last_name"`
 	BirthDate      string `json:"birth_date"`
+	CreatedAt      string `json:"created_at"`
+	LastModifiedAt string `json:"last_modified_at"`
+}
+
+type Subject struct {
+	ID             string `json:"id"`
+	Name           string `json:"name"`
+	Description    string `json:"description"`
+	Active         bool   `json:"active"`
 	CreatedAt      string `json:"created_at"`
 	LastModifiedAt string `json:"last_modified_at"`
 }

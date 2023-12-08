@@ -6,6 +6,7 @@ package graph
 
 import (
 	"apiGrapqlEntgo/ent/professor"
+	"apiGrapqlEntgo/ent/subject"
 	"apiGrapqlEntgo/graph/generated"
 	"apiGrapqlEntgo/graph/model"
 	"context"
@@ -36,6 +37,32 @@ func (r *queryResolver) Professor(ctx context.Context, id string) (*model.Profes
 	}
 
 	return marshalEntProfessor(prof), nil
+}
+
+// Subjects is the resolver for the subjects field.
+func (r *queryResolver) Subjects(ctx context.Context) ([]*model.Subject, error) {
+	subjList, err := r.Cli.Subject.Query().All(r.Ctx)
+	if err != nil {
+		return nil, fmt.Errorf("getting subjects list: %w", err)
+	}
+
+	var res []*model.Subject
+	for _, subj := range subjList {
+		res = append(res, marshalEntSubject(subj))
+	}
+	return res, nil
+}
+
+// Subject is the resolver for the subject field.
+func (r *queryResolver) Subject(ctx context.Context, id string) (*model.Subject, error) {
+	subj, err := r.Cli.Subject.Query().
+		Where(subject.ID(id)).
+		Only(r.Ctx)
+	if err != nil {
+		return nil, fmt.Errorf("getting subject by ID: %w", err)
+	}
+
+	return marshalEntSubject(subj), nil
 }
 
 // Query returns generated.QueryResolver implementation.

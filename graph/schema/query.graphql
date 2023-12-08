@@ -1,4 +1,6 @@
 type Query {
 	professors: [Professor!]!
 	professor(id: String!): Professor!
+	subjects: [Subject!]!
+	subject(id: String!): Subject!
 }

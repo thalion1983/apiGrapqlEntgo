@@ -43,8 +43,11 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	Mutation struct {
 		CreateProfessor func(childComplexity int, input model.NewProfessor) int
+		CreateSubject   func(childComplexity int, input model.NewSubject) int
 		RemoveProfessor func(childComplexity int, id string) int
+		RemoveSubject   func(childComplexity int, id string) int
 		UpdateProfessor func(childComplexity int, id string, input model.NewProfessor) int
+		UpdateSubject   func(childComplexity int, id string, input model.NewSubject) int
 	}
 
 	Professor struct {
@@ -59,6 +62,17 @@ type ComplexityRoot struct {
 	Query struct {
 		Professor  func(childComplexity int, id string) int
 		Professors func(childComplexity int) int
+		Subject    func(childComplexity int, id string) int
+		Subjects   func(childComplexity int) int
+	}
+
+	Subject struct {
+		Active         func(childComplexity int) int
+		CreatedAt      func(childComplexity int) int
+		Description    func(childComplexity int) int
+		ID             func(childComplexity int) int
+		LastModifiedAt func(childComplexity int) int
+		Name           func(childComplexity int) int
 	}
 }
 
@@ -93,6 +107,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateProfessor(childComplexity, args["input"].(model.NewProfessor)), true
 
+	case "Mutation.createSubject":
+		if e.complexity.Mutation.CreateSubject == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createSubject_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateSubject(childComplexity, args["input"].(model.NewSubject)), true
+
 	case "Mutation.removeProfessor":
 		if e.complexity.Mutation.RemoveProfessor == nil {
 			break
@@ -105,6 +131,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.RemoveProfessor(childComplexity, args["id"].(string)), true
 
+	case "Mutation.removeSubject":
+		if e.complexity.Mutation.RemoveSubject == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_removeSubject_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RemoveSubject(childComplexity, args["id"].(string)), true
+
 	case "Mutation.updateProfessor":
 		if e.complexity.Mutation.UpdateProfessor == nil {
 			break
@@ -116,6 +154,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateProfessor(childComplexity, args["id"].(string), args["input"].(model.NewProfessor)), true
+
+	case "Mutation.updateSubject":
+		if e.complexity.Mutation.UpdateSubject == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateSubject_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateSubject(childComplexity, args["id"].(string), args["input"].(model.NewSubject)), true
 
 	case "Professor.birth_date":
 		if e.complexity.Professor.BirthDate == nil {
@@ -178,6 +228,67 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Professors(childComplexity), true
 
+	case "Query.subject":
+		if e.complexity.Query.Subject == nil {
+			break
+		}
+
+		args, err := ec.field_Query_subject_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Subject(childComplexity, args["id"].(string)), true
+
+	case "Query.subjects":
+		if e.complexity.Query.Subjects == nil {
+			break
+		}
+
+		return e.complexity.Query.Subjects(childComplexity), true
+
+	case "Subject.active":
+		if e.complexity.Subject.Active == nil {
+			break
+		}
+
+		return e.complexity.Subject.Active(childComplexity), true
+
+	case "Subject.created_at":
+		if e.complexity.Subject.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Subject.CreatedAt(childComplexity), true
+
+	case "Subject.description":
+		if e.complexity.Subject.Description == nil {
+			break
+		}
+
+		return e.complexity.Subject.Description(childComplexity), true
+
+	case "Subject.id":
+		if e.complexity.Subject.ID == nil {
+			break
+		}
+
+		return e.complexity.Subject.ID(childComplexity), true
+
+	case "Subject.last_modified_at":
+		if e.complexity.Subject.LastModifiedAt == nil {
+			break
+		}
+
+		return e.complexity.Subject.LastModifiedAt(childComplexity), true
+
+	case "Subject.name":
+		if e.complexity.Subject.Name == nil {
+			break
+		}
+
+		return e.complexity.Subject.Name(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -187,6 +298,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputNewProfessor,
+		ec.unmarshalInputNewSubject,
 	)
 	first := true
 
@@ -288,11 +400,16 @@ var sources = []*ast.Source{
 	createProfessor(input: NewProfessor!): Professor!
 	removeProfessor(id: String!): Professor!
 	updateProfessor(id: String!, input:NewProfessor!): Professor!
+	createSubject(input: NewSubject!): Subject!
+	removeSubject(id: String!): Subject!
+	updateSubject(id: String!, input:NewSubject!): Subject!
 }
 `, BuiltIn: false},
 	{Name: "../schema/query.graphql", Input: `type Query {
 	professors: [Professor!]!
 	professor(id: String!): Professor!
+	subjects: [Subject!]!
+	subject(id: String!): Subject!
 }
 `, BuiltIn: false},
 	{Name: "../schema/types.graphql", Input: `input NewProfessor {
@@ -307,6 +424,22 @@ type Professor {
 	name: String!
 	last_name: String!
 	birth_date: String!
+	created_at: String!
+	last_modified_at: String!
+}
+
+input NewSubject {
+	id: String!
+	name: String!
+	description: String!
+	active: Boolean!
+}
+
+type Subject {
+	id: String!
+	name: String!
+	description: String!
+	active: Boolean!
 	created_at: String!
 	last_modified_at: String!
 }
