@@ -7,6 +7,7 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 )
 
 // Course holds the schema definition for the Course entity.
@@ -34,5 +35,12 @@ func (Course) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("subject", Subject.Type).Field("subject_id").Unique().Required(),
 		edge.To("professor", Professor.Type).Field("professor_id").Unique().Required(),
+	}
+}
+
+// Indexes of the Course.
+func (Course) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("year", "period", "subject_id").Unique(),
 	}
 }

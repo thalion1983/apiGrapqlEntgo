@@ -37,6 +37,13 @@ var (
 				OnDelete:   schema.NoAction,
 			},
 		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "course_year_period_subject_id",
+				Unique:  true,
+				Columns: []*schema.Column{CoursesColumns[1], CoursesColumns[2], CoursesColumns[5]},
+			},
+		},
 	}
 	// ProfessorsColumns holds the columns for the "professors" table.
 	ProfessorsColumns = []*schema.Column{
