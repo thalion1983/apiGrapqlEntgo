@@ -3,7 +3,6 @@ package graph
 import (
 	"apiGrapqlEntgo/ent"
 	"apiGrapqlEntgo/graph/model"
-	"context"
 )
 
 // This file will not be regenerated automatically.
@@ -12,7 +11,6 @@ import (
 
 type Resolver struct {
 	Cli *ent.Client
-	Ctx context.Context
 }
 
 var (

@@ -16,7 +16,7 @@ import (
 
 // Professors is the resolver for the professors field.
 func (r *queryResolver) Professors(ctx context.Context) ([]*model.Professor, error) {
-	profList, err := r.Cli.Professor.Query().All(r.Ctx)
+	profList, err := r.Cli.Professor.Query().All(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("getting professors list: %w", err)
 	}
@@ -32,7 +32,7 @@ func (r *queryResolver) Professors(ctx context.Context) ([]*model.Professor, err
 func (r *queryResolver) Professor(ctx context.Context, id string) (*model.Professor, error) {
 	prof, err := r.Cli.Professor.Query().
 		Where(professor.ID(id)).
-		Only(r.Ctx)
+		Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("getting professor by ID: %w", err)
 	}
@@ -42,7 +42,7 @@ func (r *queryResolver) Professor(ctx context.Context, id string) (*model.Profes
 
 // Subjects is the resolver for the subjects field.
 func (r *queryResolver) Subjects(ctx context.Context) ([]*model.Subject, error) {
-	subjList, err := r.Cli.Subject.Query().All(r.Ctx)
+	subjList, err := r.Cli.Subject.Query().All(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("getting subjects list: %w", err)
 	}
@@ -58,7 +58,7 @@ func (r *queryResolver) Subjects(ctx context.Context) ([]*model.Subject, error) 
 func (r *queryResolver) Subject(ctx context.Context, id string) (*model.Subject, error) {
 	subj, err := r.Cli.Subject.Query().
 		Where(subject.ID(id)).
-		Only(r.Ctx)
+		Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("getting subject by ID: %w", err)
 	}
@@ -68,7 +68,7 @@ func (r *queryResolver) Subject(ctx context.Context, id string) (*model.Subject,
 
 // Courses is the resolver for the courses field.
 func (r *queryResolver) Courses(ctx context.Context) ([]*model.Course, error) {
-	courList, err := r.Cli.Course.Query().All(r.Ctx)
+	courList, err := r.Cli.Course.Query().All(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("getting courses list: %w", err)
 	}
@@ -84,7 +84,7 @@ func (r *queryResolver) Courses(ctx context.Context) ([]*model.Course, error) {
 func (r *queryResolver) CourseByID(ctx context.Context, id int) (*model.Course, error) {
 	cour, err := r.Cli.Course.Query().
 		Where(course.ID(id)).
-		Only(r.Ctx)
+		Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("getting course by ID: %w", err)
 	}
@@ -100,7 +100,7 @@ func (r *queryResolver) Course(ctx context.Context, year int, period int, subjec
 			course.Period(period),
 			course.SubjectID(subjectID),
 		).
-		Only(r.Ctx)
+		Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("getting course for subject_id %s in period %d-%d: %w", subjectID, year, period, err)
 	}

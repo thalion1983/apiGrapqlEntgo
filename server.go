@@ -49,7 +49,6 @@ func main() {
 	// Create resolver
 	resolver := &graph.Resolver{
 		Cli: client,
-		Ctx: context.Background(),
 	}
 
 	// Init service

@@ -27,7 +27,7 @@ func (r *mutationResolver) CreateProfessor(ctx context.Context, input model.NewP
 		SetName(input.Name).
 		SetLastName(input.LastName).
 		SetBirthDate(birthDate).
-		Save(r.Ctx)
+		Save(ctx)
 
 	if err != nil {
 		return nil, fmt.Errorf("creating new professor: %w", err)
@@ -40,13 +40,13 @@ func (r *mutationResolver) CreateProfessor(ctx context.Context, input model.NewP
 func (r *mutationResolver) RemoveProfessor(ctx context.Context, id string) (*model.Professor, error) {
 	prof, err := r.Cli.Professor.Query().
 		Where(professor.ID(id)).
-		Only(r.Ctx)
+		Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("getting professor by ID: %w", err)
 	}
 
 	res := marshalEntProfessor(prof)
-	if err = r.Cli.Professor.DeleteOneID(id).Exec(r.Ctx); err != nil {
+	if err = r.Cli.Professor.DeleteOneID(id).Exec(ctx); err != nil {
 		return nil, fmt.Errorf("removing professor %s: %w", id, err)
 	}
 
@@ -57,7 +57,7 @@ func (r *mutationResolver) RemoveProfessor(ctx context.Context, id string) (*mod
 func (r *mutationResolver) UpdateProfessor(ctx context.Context, id string, input model.NewProfessor) (*model.Professor, error) {
 	prof, err := r.Cli.Professor.Query().
 		Where(professor.ID(id)).
-		Only(r.Ctx)
+		Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("getting professor by ID: %w", err)
 	}
@@ -72,7 +72,7 @@ func (r *mutationResolver) UpdateProfessor(ctx context.Context, id string, input
 		SetName(input.Name).
 		SetLastName(input.LastName).
 		SetBirthDate(birthDate).
-		Save(r.Ctx)
+		Save(ctx)
 
 	if err != nil {
 		return nil, fmt.Errorf("updating professor %s: %w", id, err)
@@ -88,7 +88,7 @@ func (r *mutationResolver) CreateSubject(ctx context.Context, input model.NewSub
 		SetName(input.Name).
 		SetDescription(input.Description).
 		SetActive(input.Active).
-		Save(r.Ctx)
+		Save(ctx)
 
 	if err != nil {
 		return nil, fmt.Errorf("creating new subject: %w", err)
@@ -101,13 +101,13 @@ func (r *mutationResolver) CreateSubject(ctx context.Context, input model.NewSub
 func (r *mutationResolver) RemoveSubject(ctx context.Context, id string) (*model.Subject, error) {
 	subj, err := r.Cli.Subject.Query().
 		Where(subject.ID(id)).
-		Only(r.Ctx)
+		Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("getting subject by ID: %w", err)
 	}
 
 	res := marshalEntSubject(subj)
-	if err = r.Cli.Subject.DeleteOneID(id).Exec(r.Ctx); err != nil {
+	if err = r.Cli.Subject.DeleteOneID(id).Exec(ctx); err != nil {
 		return nil, fmt.Errorf("removing subject %s: %w", id, err)
 	}
 
@@ -118,7 +118,7 @@ func (r *mutationResolver) RemoveSubject(ctx context.Context, id string) (*model
 func (r *mutationResolver) UpdateSubject(ctx context.Context, id string, input model.NewSubject) (*model.Subject, error) {
 	subj, err := r.Cli.Subject.Query().
 		Where(subject.ID(id)).
-		Only(r.Ctx)
+		Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("getting subject by ID: %w", err)
 	}
@@ -127,7 +127,7 @@ func (r *mutationResolver) UpdateSubject(ctx context.Context, id string, input m
 		SetName(input.Name).
 		SetDescription(input.Description).
 		SetActive(input.Active).
-		Save(r.Ctx)
+		Save(ctx)
 
 	if err != nil {
 		return nil, fmt.Errorf("updating subject %s: %w", id, err)
@@ -143,7 +143,7 @@ func (r *mutationResolver) CreateCourse(ctx context.Context, input model.NewCour
 		SetPeriod(input.Period).
 		SetProfessorID(input.ProfessorID).
 		SetSubjectID(input.SubjectID).
-		Save(r.Ctx)
+		Save(ctx)
 
 	if err != nil {
 		return nil, fmt.Errorf("creating new course: %w", err)
@@ -156,13 +156,13 @@ func (r *mutationResolver) CreateCourse(ctx context.Context, input model.NewCour
 func (r *mutationResolver) RemoveCourseByID(ctx context.Context, id int) (*model.Course, error) {
 	cour, err := r.Cli.Course.Query().
 		Where(course.ID(id)).
-		Only(r.Ctx)
+		Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("getting course by ID: %w", err)
 	}
 
 	res := marshalEntCourse(cour)
-	if err = r.Cli.Course.DeleteOneID(id).Exec(r.Ctx); err != nil {
+	if err = r.Cli.Course.DeleteOneID(id).Exec(ctx); err != nil {
 		return nil, fmt.Errorf("removing course %s: %w", id, err)
 	}
 
@@ -177,14 +177,14 @@ func (r *mutationResolver) RemoveCourse(ctx context.Context, year int, period in
 			course.Period(period),
 			course.SubjectID(subjectID),
 		).
-		Only(r.Ctx)
+		Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("getting course for subject_id %s in period %d-%d: %w", subjectID, year, period, err)
 	}
 
 	res := marshalEntCourse(cour)
 
-	if err = r.Cli.Course.DeleteOne(cour).Exec(r.Ctx); err != nil {
+	if err = r.Cli.Course.DeleteOne(cour).Exec(ctx); err != nil {
 		return nil, fmt.Errorf("removing course for subject_id %s in period %d-%d: %w", subjectID, year, period, err)
 	}
 
@@ -195,7 +195,7 @@ func (r *mutationResolver) RemoveCourse(ctx context.Context, year int, period in
 func (r *mutationResolver) UpdateCourseByID(ctx context.Context, id int, input model.NewCourse) (*model.Course, error) {
 	cour, err := r.Cli.Course.Query().
 		Where(course.ID(id)).
-		Only(r.Ctx)
+		Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("getting course by ID: %w", err)
 	}
@@ -205,7 +205,7 @@ func (r *mutationResolver) UpdateCourseByID(ctx context.Context, id int, input m
 		SetPeriod(input.Period).
 		SetProfessorID(input.ProfessorID).
 		SetSubjectID(input.SubjectID).
-		Save(r.Ctx)
+		Save(ctx)
 
 	if err != nil {
 		return nil, fmt.Errorf("updating course %s: %w", id, err)
@@ -222,7 +222,7 @@ func (r *mutationResolver) UpdateCourse(ctx context.Context, year int, period in
 			course.Period(period),
 			course.SubjectID(subjectID),
 		).
-		Only(r.Ctx)
+		Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("getting course for subject_id %s in period %d-%d: %w", subjectID, year, period, err)
 	}
@@ -232,7 +232,7 @@ func (r *mutationResolver) UpdateCourse(ctx context.Context, year int, period in
 		SetPeriod(input.Period).
 		SetProfessorID(input.ProfessorID).
 		SetSubjectID(input.SubjectID).
-		Save(r.Ctx)
+		Save(ctx)
 
 	if err != nil {
 		return nil, fmt.Errorf("updating course for subject_id %s in period %d-%d: %w", subjectID, year, period, err)
